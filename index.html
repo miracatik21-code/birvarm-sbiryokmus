@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>82 İl 82 Masal – Anadolu Masal Ağı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+:root{
+  --gold:#f5a623;--gold2:#d4870e;--orange:#e07b00;
+  --dark:#0d0d0d;--dark2:#111318;--dark3:#1a1c24;
+  --white:#ffffff;--off:#f4f0e8;
+  --text-muted:#94a3b8;--text-body:#e2e8f0;
+  --panel-bg:rgba(8,8,16,0.98);
+  --border-gold:rgba(245,166,35,0.3);
+  --card:rgba(20,22,30,0.92);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--dark);color:var(--white);overflow-x:hidden;}
+
+/* ══════════════════════════════════════
+   TOP BAR  (beyaz, referans ile aynı)
+══════════════════════════════════════ */
+#topbar{
+  background:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 28px;gap:12px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:1000;
+  box-shadow:0 2px 14px rgba(0,0,0,.18);
+}
+#logo-wrap{display:flex;align-items:center;gap:14px;text-decoration:none;}
+#logo-circle{
+  width:62px;height:62px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#f5a623,#c97b0a);
+  border:3px solid #f5a623;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;
+  box-shadow:0 4px 16px rgba(245,166,35,.5);
+}
+#logo-text{line-height:1.15;}
+#logo-text .main{
+  font-family:'Oswald',sans-serif;font-weight:700;
+  font-size:clamp(.9rem,2.2vw,1.45rem);
+  color:#1a1a2e;letter-spacing:.04em;text-transform:uppercase;
+}
+#logo-text .sub{font-size:.7rem;color:#666;letter-spacing:.06em;font-family:'Crimson Pro',serif;}
+#topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.top-pill{background:#1a1a2e;color:var(--gold);border-radius:5px;padding:5px 13px;font-size:.72rem;font-weight:700;font-family:'Oswald',sans-serif;letter-spacing:.05em;}
+.top-pill span{color:#38bdf8;}
+#btn-lang-top,#btn-logout-top,#btn-download{
+  font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;
+  border-radius:5px;padding:8px 18px;cursor:pointer;transition:all .2s;border:2px solid;
+}
+#btn-download{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
+#btn-download:hover{background:var(--gold);border-color:var(--gold);color:#1a1a2e;}
+#btn-lang-top{background:var(--gold);color:#1a1a2e;border-color:var(--gold);}
+#btn-lang-top:hover{background:var(--orange);border-color:var(--orange);}
+#btn-logout-top{background:none;color:#888;border-color:#ccc;font-size:.72rem;}
+#btn-logout-top:hover{border-color:#e74c3c;color:#e74c3c;}
+#user-bar{display:none;align-items:center;gap:8px;flex-wrap:wrap;}
+#guest-bar{display:flex;align-items:center;gap:8px;}
+#guest-hint{font-size:.72rem;color:#999;font-style:italic;}
+
+/* ══════════════════════════════════════
+   NAVBAR  (koyu, referans ile aynı)
+══════════════════════════════════════ */
+#navbar{
+  background:#1a1a2e;
+  display:flex;align-items:stretch;justify-content:center;
+  gap:0;flex-wrap:wrap;
+  border-bottom:3px solid var(--gold);
+  position:sticky;top:78px;z-index:999;
+}
+.nav-item{
+  padding:13px 20px;background:none;border:none;
+  color:rgba(255,255,255,.8);
+  font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+  border-bottom:3px solid transparent;margin-bottom:-3px;
+  white-space:nowrap;
+}
+.nav-item:hover{color:var(--gold);background:rgba(245,166,35,.07);}
+.nav-item.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ══════════════════════════════════════
+   HERO  (referans ile aynı yapı)
+══════════════════════════════════════ */
+#hero{
+  position:relative;min-height:88vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;background:#080810;
+}
+/* Müzik notaları */
+.note{
+  position:absolute;user-select:none;pointer-events:none;
+  font-size:clamp(2.5rem,7vw,6rem);
+  animation:floatUp linear infinite;
+  filter:drop-shadow(0 0 10px currentColor);
+}
+@keyframes floatUp{
+  0%{transform:translateY(110vh) rotate(-15deg);opacity:0;}
+  8%{opacity:1;}90%{opacity:.7;}
+  100%{transform:translateY(-15vh) rotate(25deg);opacity:0;}
+}
+/* Türkiye kelime bulutu arka plan */
+#wc-bg{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;overflow:hidden;
+  opacity:.22;
+}
+.wc-w{
+  position:absolute;
+  font-family:'Oswald',sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+/* Hero içerik */
+#hero-inner{
+  position:relative;z-index:10;text-align:center;
+  padding:40px 24px;max-width:820px;width:100%;
+}
+#hero-inner h2{
+  font-family:'Oswald',sans-serif;font-weight:700;
+  font-size:clamp(1.8rem,6vw,4rem);
+  text-transform:uppercase;letter-spacing:.06em;
+  color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.9);
+  line-height:1.08;margin-bottom:14px;
+}
+#hero-inner p{
+  font-size:clamp(.88rem,2vw,1.05rem);
+  color:rgba(255,255,255,.7);margin-bottom:34px;
+  font-style:italic;letter-spacing:.04em;
+}
+#hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.hbtn{
+  padding:13px 34px;border-radius:5px;
+  font-family:'Oswald',sans-serif;font-size:.9rem;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;transition:all .25s;border:2px solid;
+}
+.hbtn.gold{background:var(--gold);color:#1a1a2e;border-color:var(--gold);box-shadow:0 6px 24px rgba(245,166,35,.45);}
+.hbtn.gold:hover{background:var(--orange);border-color:var(--orange);transform:translateY(-2px);}
+.hbtn.outline{background:transparent;color:#fff;border-color:var(--gold);}
+.hbtn.outline:hover{background:var(--gold);color:#1a1a2e;transform:translateY(-2px);}
+
+/* ══════════════════════════════════════
+   APP SECTION PAGES
+══════════════════════════════════════ */
+#app-section{background:var(--dark);}
+.page{display:none;}.page.active{display:block;}
+
+/* Progress */
+#progress-bar-wrap{
+  padding:9px 20px;background:#111;
+  border-bottom:1px solid rgba(245,166,35,.12);
+  display:flex;align-items:center;gap:12px;
+}
+#progress-label{font-size:.7rem;color:var(--text-muted);white-space:nowrap;font-family:'Oswald',sans-serif;letter-spacing:.08em;text-transform:uppercase;}
+#progress-track{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+#progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--orange));border-radius:3px;transition:width .6s ease;width:0%;}
+#progress-count{font-size:.7rem;color:var(--gold);white-space:nowrap;font-family:'Oswald',sans-serif;font-weight:600;}
+
+/* Map */
+#map-container{height:clamp(300px,52vw,520px);width:100%;border-bottom:1px solid var(--border-gold);}
+#map{height:100%;width:100%;background:#060e1f!important;}
+.leaflet-container{background:#060e1f!important;}
+.fairy-marker{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fef3c7,#f5a623,#b45309);box-shadow:0 0 8px 3px rgba(245,166,35,.65),0 0 20px 5px rgba(245,166,35,.2);cursor:pointer;animation:pgold 2.5s ease-in-out infinite;border:1.5px solid rgba(255,255,255,.4);}
+.fairy-marker.discovered{background:radial-gradient(circle at 35% 35%,#bfdbfe,#38bdf8,#0369a1);box-shadow:0 0 8px 3px rgba(56,189,248,.65),0 0 20px 5px rgba(56,189,248,.2);animation:psky 2.5s ease-in-out infinite;}
+@keyframes pgold{0%,100%{box-shadow:0 0 8px 3px rgba(245,166,35,.65),0 0 20px 5px rgba(245,166,35,.2);}50%{box-shadow:0 0 14px 5px rgba(245,166,35,.9),0 0 30px 10px rgba(245,166,35,.35);}}
+@keyframes psky{0%,100%{box-shadow:0 0 8px 3px rgba(56,189,248,.65),0 0 20px 5px rgba(56,189,248,.2);}50%{box-shadow:0 0 14px 5px rgba(56,189,248,.9),0 0 30px 10px rgba(56,189,248,.35);}}
+
+/* ── TALE PANEL ── */
+#tale-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:500;
+  background:var(--panel-bg);
+  border-top:2px solid var(--gold);
+  border-radius:20px 20px 0 0;
+  transform:translateY(100%);
+  transition:transform .4s cubic-bezier(.16,1,.3,1);
+  max-height:80vh;display:flex;flex-direction:column;
+  box-shadow:0 -20px 60px rgba(0,0,0,.8);
+}
+#tale-panel.open{transform:translateY(0);}
+#tale-handle{text-align:center;padding:10px;cursor:pointer;flex-shrink:0;}
+#tale-handle::before{content:'';display:inline-block;width:40px;height:4px;background:rgba(245,166,35,.4);border-radius:2px;}
+#tale-hdr{display:flex;align-items:center;justify-content:space-between;padding:0 20px 12px;flex-shrink:0;border-bottom:1px solid var(--border-gold);gap:10px;}
+#tale-city{font-family:'Oswald',sans-serif;font-size:clamp(.95rem,3vw,1.3rem);color:var(--gold);letter-spacing:.06em;text-transform:uppercase;}
+#tale-sub-lbl{font-size:.72rem;color:var(--text-muted);font-style:italic;}
+#btn-close-panel{background:none;border:1px solid var(--border-gold);color:var(--text-muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+#btn-close-panel:hover{border-color:var(--gold);color:var(--gold);}
+
+/* auth inside panel */
+#panel-auth{padding:20px;flex:1;overflow-y:auto;}
+#panel-auth-inner{max-width:380px;margin:0 auto;text-align:center;}
+.panel-city-icon{font-size:2.2rem;margin-bottom:6px;}
+#panel-auth-title{font-family:'Oswald',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase;}
+#panel-auth-sub{font-size:.82rem;color:var(--text-muted);font-style:italic;margin-bottom:18px;line-height:1.5;}
+.auth-tabs-mini{display:flex;background:rgba(0,0,0,.4);border-radius:8px;padding:3px;margin-bottom:16px;border:1px solid var(--border-gold);}
+.auth-tab-mini{flex:1;padding:7px;background:none;border:none;color:var(--text-muted);font-family:'Oswald',sans-serif;font-size:.8rem;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s;letter-spacing:.06em;text-transform:uppercase;}
+.auth-tab-mini.active{background:var(--gold);color:#1a1a2e;}
+.auth-step{display:none;}.auth-step.active{display:block;}
+.mini-field{margin-bottom:10px;text-align:left;}
+.mini-field label{display:block;font-size:.68rem;color:var(--text-muted);margin-bottom:3px;letter-spacing:.08em;font-family:'Oswald',sans-serif;text-transform:uppercase;}
+.mini-field input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border-gold);border-radius:7px;padding:9px 12px;color:var(--white);font-family:'Crimson Pro',serif;font-size:.92rem;outline:none;transition:border-color .2s;}
+.mini-field input:focus{border-color:var(--gold);}
+.auth-btn-primary{width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1a2e;border:none;border-radius:7px;padding:11px;font-family:'Oswald',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:4px;transition:all .2s;letter-spacing:.08em;text-transform:uppercase;}
+.auth-btn-primary:hover{background:var(--orange);transform:translateY(-1px);}
+#panel-auth-msg{margin-top:9px;font-size:.82rem;min-height:1em;font-style:italic;text-align:center;}
+#panel-auth-msg.error{color:#f87171;}
+#panel-auth-msg.success{color:#4ade80;}
+.cloud-id-reveal{margin-top:14px;background:rgba(245,166,35,.08);border:1px solid var(--border-gold);border-radius:10px;padding:14px;display:none;text-align:center;}
+.cloud-id-reveal .cid-lbl{font-size:.68rem;color:var(--text-muted);margin-bottom:3px;letter-spacing:.1em;font-family:'Oswald',sans-serif;text-transform:uppercase;}
+.cloud-id-reveal .cid-code{font-family:'Cinzel Decorative',serif;font-size:1.9rem;color:var(--gold);letter-spacing:.2em;text-shadow:0 0 20px rgba(245,166,35,.5);}
+.cloud-id-reveal .cid-note{font-size:.7rem;color:var(--text-muted);margin-top:4px;font-style:italic;}
+
+/* tale inside panel */
+#panel-tale{flex:1;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:rgba(245,166,35,.3) transparent;}
+#tale-text{padding:16px 22px;font-size:clamp(.9rem,2.4vw,1.02rem);line-height:1.82;color:var(--text-body);font-style:italic;flex:1;}
+#tale-text::first-letter{font-size:2.8em;float:left;line-height:.75;margin:.05em .08em 0 0;color:var(--gold);font-family:'Cinzel Decorative',serif;font-style:normal;}
+#tale-actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px 18px;border-top:1px solid var(--border-gold);flex-shrink:0;}
+.tale-btn{flex:1;min-width:80px;padding:10px 12px;border-radius:7px;font-family:'Oswald',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;letter-spacing:.06em;text-transform:uppercase;}
+#btn-listen{background:linear-gradient(135deg,#0c4a6e,#0369a1);color:#e0f2fe;border:1px solid rgba(56,189,248,.3);}
+#btn-stop{background:rgba(30,30,40,.8);color:var(--text-muted);border:1px solid var(--border-gold);}
+#btn-stop:hover{border-color:#38bdf8;color:#38bdf8;}
+#btn-game-from-tale{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1a2e;}
+
+/* ── GAME PAGE ── */
+#page-game{padding:28px 20px 60px;max-width:760px;margin:0 auto;}
+.page-hdr{text-align:center;margin-bottom:22px;}
+.page-hdr h2{font-family:'Oswald',sans-serif;font-size:clamp(1.1rem,3vw,1.6rem);color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.page-hdr p{font-size:.82rem;color:var(--text-muted);font-style:italic;}
+
+/* Value filter tabs */
+#value-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;justify-content:center;}
+.vtab{padding:6px 16px;border-radius:999px;background:rgba(20,20,30,.8);border:1px solid var(--border-gold);color:var(--text-muted);font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.vtab:hover{border-color:var(--gold);color:var(--gold);}
+.vtab.active{background:var(--gold);border-color:var(--gold);color:#1a1a2e;}
+
+/* Score bar */
+#game-score-bar{display:flex;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.gscore{background:var(--card);border:1px solid var(--border-gold);border-radius:10px;padding:9px 18px;text-align:center;min-width:80px;}
+.gscore .val{font-family:'Oswald',sans-serif;font-size:1.5rem;color:var(--gold);}
+.gscore .lbl{font-size:.66rem;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;}
+
+/* Value question card */
+#value-quiz-area{
+  background:linear-gradient(145deg,rgba(20,22,30,.95),rgba(10,10,18,.98));
+  border:1px solid var(--border-gold);border-radius:14px;
+  padding:24px 20px;
+}
+#vq-value-badge{
+  display:inline-block;
+  background:var(--gold);color:#1a1a2e;
+  border-radius:5px;padding:4px 14px;
+  font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+#vq-province{font-family:'Oswald',sans-serif;font-size:.75rem;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+#vq-question{font-size:clamp(1rem,2.8vw,1.18rem);font-weight:600;line-height:1.5;color:var(--white);margin-bottom:18px;}
+.vq-opt{width:100%;background:rgba(10,10,20,.7);border:1px solid var(--border-gold);color:var(--white);border-radius:8px;padding:11px 15px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:'Crimson Pro',serif;font-size:.95rem;transition:all .2s;}
+.vq-opt:hover{border-color:var(--gold);background:rgba(245,166,35,.07);}
+.vq-opt.correct{border-color:#22c55e;background:rgba(34,197,94,.1);color:#86efac;}
+.vq-opt.wrong{border-color:#ef4444;background:rgba(239,68,68,.1);color:#fca5a5;}
+.vq-opt.disabled{pointer-events:none;opacity:.6;}
+#vq-feedback{text-align:center;font-size:1rem;font-weight:600;margin-top:10px;min-height:1.3em;}
+#vq-feedback.good{color:#4ade80;}#vq-feedback.bad{color:#f87171;}
+#vq-value-explain{margin-top:12px;padding:12px 14px;background:rgba(245,166,35,.06);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;font-size:.85rem;color:var(--text-muted);font-style:italic;display:none;line-height:1.6;}
+#vq-next{display:none;margin:14px auto 0;padding:10px 26px;background:var(--gold);color:#1a1a2e;border:none;border-radius:7px;font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.07em;text-transform:uppercase;}
+.game-btns-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.game-btn{padding:8px 18px;border-radius:7px;font-family:'Oswald',sans-serif;font-size:.76rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:1px solid;}
+#btn-random-val{background:var(--gold);color:#1a1a2e;border-color:var(--gold);}
+#btn-random-val:hover{background:var(--orange);border-color:var(--orange);}
+#btn-reset-game{background:none;color:var(--text-muted);border-color:var(--border-gold);}
+#btn-reset-game:hover{border-color:#ef4444;color:#f87171;}
+
+/* ── BADGES ── */
+#page-badges{padding:24px 16px 60px;max-width:720px;margin:0 auto;}
+#badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;}
+.badge-card{background:var(--card);border:1px solid var(--border-gold);border-radius:12px;padding:16px 10px;text-align:center;transition:all .3s;position:relative;overflow:hidden;}
+.badge-card.earned{border-color:rgba(245,166,35,.6);background:linear-gradient(145deg,rgba(20,22,32,.95),rgba(14,14,24,.98));}
+.badge-card.earned::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,166,35,.09),transparent 70%);pointer-events:none;}
+.badge-card:not(.earned){filter:grayscale(.85);opacity:.42;}
+.badge-icon{font-size:2rem;margin-bottom:7px;display:block;}
+.badge-name{font-family:'Oswald',sans-serif;font-size:.68rem;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px;}
+.badge-desc{font-size:.7rem;color:var(--text-muted);font-style:italic;line-height:1.35;}
+.badge-card.earned .badge-desc{color:var(--text-body);}
+
+/* ── LEADERBOARD ── */
+#page-leaderboard{padding:24px 16px 60px;max-width:600px;margin:0 auto;}
+#lb-list{display:flex;flex-direction:column;gap:9px;}
+.lb-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border-gold);border-radius:10px;padding:11px 15px;}
+.lb-row.me{border-color:rgba(245,166,35,.55);background:linear-gradient(135deg,rgba(20,22,32,.9),rgba(14,14,24,.98));}
+.lb-rank{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--text-muted);min-width:26px;text-align:center;}
+.lb-rank.gold{color:#ffd700;}.lb-rank.silver{color:#c0c0c0;}.lb-rank.bronze{color:#cd7f32;}
+.lb-name{flex:1;font-size:.9rem;color:var(--white);}
+.lb-name.me{color:var(--gold);font-weight:600;}
+.lb-score{font-family:'Oswald',sans-serif;font-size:.95rem;color:#38bdf8;font-weight:700;}
+.lb-disc{font-size:.68rem;color:var(--text-muted);}
+
+/* ── CONTACT ── */
+#page-contact{padding:28px 16px 60px;max-width:640px;margin:0 auto;}
+#page-contact form{display:flex;flex-direction:column;gap:11px;}
+#page-contact input,#page-contact textarea{
+  background:rgba(10,10,20,.7);border:1px solid var(--border-gold);
+  border-radius:8px;padding:11px 14px;color:var(--white);
+  font-family:'Crimson Pro',serif;font-size:.94rem;outline:none;
+  transition:border-color .2s;resize:vertical;
+}
+#page-contact input:focus,#page-contact textarea:focus{border-color:var(--gold);}
+#page-contact textarea{min-height:95px;}
+#page-contact button[type=submit]{
+  background:linear-gradient(135deg,#0c4a6e,#0ea5e9);color:#e0f2fe;
+  border:none;border-radius:9px;padding:12px;
+  font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:700;
+  cursor:pointer;transition:all .2s;letter-spacing:.08em;text-transform:uppercase;
+}
+#page-contact button[type=submit]:hover{opacity:.9;transform:translateY(-1px);}
+
+/* ── FOOTER ── */
+#footer{
+  background:#1a1a2e;text-align:center;padding:16px 20px 28px;
+  border-top:2px solid var(--gold);
+  font-size:.72rem;color:var(--text-muted);font-style:italic;
+}
+#footer a{color:var(--gold);text-decoration:none;}
+
+/* ── MODALS ── */
+#confetti-canvas{position:fixed;inset:0;z-index:2000;pointer-events:none;display:none;}
+#completion-modal{position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.93);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px);}
+#completion-modal.open{display:flex;}
+#completion-card{background:linear-gradient(145deg,#0e0e18,#14141e);border:1px solid rgba(245,166,35,.6);border-radius:20px;padding:34px 26px;max-width:460px;width:100%;text-align:center;box-shadow:0 0 80px rgba(245,166,35,.12);}
+#completion-card .big-icon{font-size:3.6rem;margin-bottom:10px;display:block;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+#completion-card h2{font-family:'Oswald',sans-serif;font-size:clamp(1.1rem,3.5vw,1.6rem);color:var(--gold);margin-bottom:7px;letter-spacing:.06em;text-transform:uppercase;}
+#completion-card p{font-size:.88rem;color:var(--text-muted);font-style:italic;margin-bottom:18px;line-height:1.6;}
+#btn-close-completion{background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:11px 26px;font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.07em;text-transform:uppercase;}
+#badge-modal{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);}
+#badge-modal.open{display:flex;}
+#badge-modal-card{background:linear-gradient(145deg,#0e0e18,#14141e);border:1px solid rgba(245,166,35,.5);border-radius:18px;padding:28px 22px;max-width:340px;width:100%;text-align:center;animation:slideUp .4s cubic-bezier(.16,1,.3,1);}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+#badge-modal-icon{font-size:3rem;margin-bottom:9px;display:block;}
+#badge-modal-title{font-family:'Oswald',sans-serif;font-size:.68rem;color:#38bdf8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}
+#badge-modal-name{font-family:'Oswald',sans-serif;font-size:1.15rem;color:var(--gold);margin-bottom:7px;letter-spacing:.05em;}
+#badge-modal-desc{font-size:.84rem;color:var(--text-muted);font-style:italic;margin-bottom:16px;line-height:1.5;}
+#btn-close-badge{background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:9px 22px;font-family:'Oswald',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;letter-spacing:.07em;text-transform:uppercase;}
+
+/* TOAST */
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a2e;border:1px solid var(--gold);border-radius:999px;padding:8px 20px;font-size:.82rem;color:var(--gold);z-index:800;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 30px rgba(0,0,0,.5);max-width:90vw;font-family:'Oswald',sans-serif;letter-spacing:.05em;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:rgba(245,166,35,.35);border-radius:2px;}
+@media(max-width:600px){
+  #topbar{padding:8px 14px;}
+  .nav-item{padding:11px 12px;font-size:.72rem;}
+  #hero-inner h2{font-size:1.7rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- CONFETTI + MODALS -->
+<canvas id="confetti-canvas"></canvas>
+<div id="completion-modal"><div id="completion-card">
+  <span class="big-icon">🌟</span>
+  <h2 id="completion-title">Tüm Türkiye Keşfedildi!</h2>
+  <p id="completion-text">82 ilin tamamını keşfettin!</p>
+  <button id="btn-close-completion">Devam Et</button>
+</div></div>
+<div id="badge-modal"><div id="badge-modal-card">
+  <span id="badge-modal-icon">🏅</span>
+  <div id="badge-modal-title">YENİ ROZET!</div>
+  <div id="badge-modal-name">—</div>
+  <div id="badge-modal-desc">—</div>
+  <button id="btn-close-badge">Harika!</button>
+</div></div>
+
+<!-- ══ TOP BAR ══ -->
+<div id="topbar">
+  <div id="logo-wrap">
+    <div id="logo-circle">📖</div>
+    <div id="logo-text">
+      <div class="main" id="logo-main">82 İl 82 Masal</div>
+      <div class="sub" id="logo-sub">Anadolu Masal Ağı</div>
+    </div>
+  </div>
+  <div id="topbar-right">
+    <!-- GUEST -->
+    <div id="guest-bar">
+      <span id="guest-hint">Bir ile tıkla, masalı keşfet!</span>
+    </div>
+    <!-- LOGGED IN -->
+    <div id="user-bar">
+      <div class="top-pill" id="user-name-pill">—</div>
+      <div class="top-pill">ID: <span id="user-id-pill">—</span></div>
+      <div class="top-pill">⭐ <span id="user-score-pill">0</span></div>
+      <button id="btn-logout-top">Çıkış</button>
+    </div>
+    <button id="btn-lang-top">🇬🇧 EN</button>
+    <button id="btn-download" onclick="window.print()">⬇ İndir</button>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav id="navbar">
+  <button class="nav-item active" data-page="hero" id="nav-home">ANASAYFA</button>
+  <button class="nav-item" data-page="map" id="nav-map">HARİTA</button>
+  <button class="nav-item" data-page="game" id="nav-game">OYUN</button>
+  <button class="nav-item" data-page="badges" id="nav-badges">ROZETLER</button>
+  <button class="nav-item" data-page="leaderboard" id="nav-lb">SIRALAMA</button>
+  <button class="nav-item" data-page="contact" id="nav-contact">İLETİŞİM</button>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div id="hero-bg">
+    <!-- Music notes injected by JS -->
+  </div>
+  <div id="wc-bg"><!-- word cloud injected by JS --></div>
+  <div id="hero-inner">
+    <h2 id="hero-title">82 İL 82 MASAL</h2>
+    <p id="hero-sub">Anadolu Masal Ağı'na hoşgeldiniz.</p>
+    <div id="hero-btns">
+      <button class="hbtn gold" id="btn-goto-map">Haritaya Git</button>
+      <button class="hbtn outline" id="btn-goto-game">Oyunlar</button>
+      <button class="hbtn outline" id="btn-goto-contact">İletişim</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ APP SECTION ══ -->
+<div id="app-section">
+
+  <!-- MAP PAGE -->
+  <div class="page" id="page-map">
+    <div id="progress-bar-wrap">
+      <div id="progress-label">KEŞFEDİLEN İLLER</div>
+      <div id="progress-track"><div id="progress-fill"></div></div>
+      <div id="progress-count">0 / 82</div>
+    </div>
+    <div id="map-container"><div id="map"></div></div>
+  </div>
+
+  <!-- GAME PAGE -->
+  <div class="page" id="page-game">
+    <div class="page-hdr">
+      <h2 id="game-title">MASAL DEĞERLERİ OYUNU</h2>
+      <p id="game-desc">Masallardaki evrensel değerleri keşfet ve sorulara cevap ver!</p>
+    </div>
+    <div id="game-score-bar">
+      <div class="gscore"><div class="val" id="gs-score">0</div><div class="lbl" id="gs-score-lbl">PUAN</div></div>
+      <div class="gscore"><div class="val" id="gs-correct">0</div><div class="lbl" id="gs-correct-lbl">DOĞRU</div></div>
+      <div class="gscore"><div class="val" id="gs-total">0</div><div class="lbl" id="gs-total-lbl">TOPLAM</div></div>
+    </div>
+    <div id="value-tabs">
+      <button class="vtab active" data-val="all" id="vtab-all">Tümü</button>
+      <button class="vtab" data-val="cesaret">💪 Cesaret</button>
+      <button class="vtab" data-val="sevgi">❤️ Sevgi</button>
+      <button class="vtab" data-val="dürüstlük">✨ Dürüstlük</button>
+      <button class="vtab" data-val="paylaşım">🤝 Paylaşım</button>
+      <button class="vtab" data-val="sabır">🌱 Sabır</button>
+      <button class="vtab" data-val="umut">🌟 Umut</button>
+      <button class="vtab" data-val="merhamet">🕊️ Merhamet</button>
+    </div>
+    <div class="game-btns-row">
+      <button class="game-btn" id="btn-random-val">🎲 Rastgele Soru</button>
+      <button class="game-btn" id="btn-reset-game">↺ Sıfırla</button>
+    </div>
+    <div id="value-quiz-area">
+      <div id="vq-value-badge">—</div>
+      <div id="vq-province"></div>
+      <div id="vq-question">Başlamak için bir değer seç veya rastgele soru butonuna bas!</div>
+      <div id="vq-options"></div>
+      <div id="vq-feedback"></div>
+      <div id="vq-value-explain"></div>
+      <button id="vq-next">Sonraki Soru →</button>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="page" id="page-badges">
+    <div class="page-hdr" style="padding-top:24px;">
+      <h2 id="badges-title">ROZETLERİM</h2>
+      <p id="badges-desc">Başarılarını topla, Anadolu'nun gerçek gezgini ol!</p>
+    </div>
+    <div id="badges-grid" style="padding:0 16px 60px;max-width:720px;margin:0 auto;"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="page" id="page-leaderboard">
+    <div class="page-hdr" style="padding-top:24px;">
+      <h2 id="lb-title">SIRALAMA</h2>
+      <p id="lb-desc">Bu cihazdaki en iyi gezginler</p>
+    </div>
+    <div id="lb-list" style="padding:0 16px;max-width:600px;margin:0 auto 60px;"></div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="page" id="page-contact">
+    <div class="page-hdr" style="padding-top:24px;">
+      <h2 id="contact-title">İLETİŞİM</h2>
+      <p id="contact-sub">Proje hakkında düşüncelerinizi paylaşın</p>
+    </div>
+    <form action="https://formsubmit.co/mirac.atik21@gmail.com" method="POST" style="max-width:600px;margin:0 auto;padding:0 16px 60px;">
+      <input type="hidden" name="_subject" value="82 Masal Ağı — Geri Bildirim">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+      <input type="text" name="isim" id="contact-name-input" placeholder="Adınız Soyadınız" required>
+      <input type="email" name="eposta" id="contact-email-input" placeholder="E-posta adresiniz" required>
+      <textarea name="mesaj" id="contact-msg-input" placeholder="Düşüncelerinizi yazın..." required></textarea>
+      <button type="submit" id="contact-submit">GÖNDER</button>
+    </form>
+  </div>
+</div>
+
+<div id="footer">
+  Tasarım &amp; Geliştirme: <a href="mailto:mirac.atik21@gmail.com">Mirac Atik</a> &nbsp;·&nbsp; 82 İl 82 Masal – Anadolu Masal Ağı
+</div>
+
+<!-- TALE PANEL -->
+<div id="tale-panel">
+  <div id="tale-handle"></div>
+  <div id="tale-hdr">
+    <div>
+      <div id="tale-city">—</div>
+      <div id="tale-sub-lbl">Anadolu Masalı</div>
+    </div>
+    <button id="btn-close-panel">✕</button>
+  </div>
+  <div id="panel-auth">
+    <div id="panel-auth-inner">
+      <div class="panel-city-icon" id="panel-city-icon">✨</div>
+      <div id="panel-auth-title">MASALI KEŞFETMEk İÇİN</div>
+      <div id="panel-auth-sub">Ücretsiz kayıt ol — sadece bir isim yeterli!</div>
+      <div class="auth-tabs-mini">
+        <button class="auth-tab-mini active" id="mini-tab-reg">Kayıt Ol</button>
+        <button class="auth-tab-mini" id="mini-tab-login">Giriş Yap</button>
+      </div>
+      <div class="auth-step active" id="mini-form-reg">
+        <div class="mini-field"><label id="mini-lbl-name">AD SOYAD</label><input type="text" id="mini-reg-name" placeholder="Adınızı giriniz" autocomplete="off"></div>
+        <button class="auth-btn-primary" id="mini-btn-reg">MACERAYA BAŞLA</button>
+        <div class="cloud-id-reveal" id="mini-id-box">
+          <div class="cid-lbl" id="mini-lbl-cid">BULUT KİMLİK NUMARANIZ</div>
+          <div class="cid-code" id="mini-id-display">----</div>
+          <div class="cid-note" id="mini-lbl-note">Bu numarayı not alın!</div>
+          <button class="auth-btn-primary" id="mini-btn-continue" style="margin-top:10px;font-size:.78rem;">DEVAM ET →</button>
+        </div>
+      </div>
+      <div class="auth-step" id="mini-form-login">
+        <div class="mini-field"><label id="mini-lbl-code">BULUT KİMLİK NUMARASI</label><input type="text" id="mini-login-code" placeholder="Örn: 4821" maxlength="4" autocomplete="off"></div>
+        <button class="auth-btn-primary" id="mini-btn-login">GİRİŞ YAP</button>
+      </div>
+      <div id="panel-auth-msg"></div>
+    </div>
+  </div>
+  <div id="panel-tale" style="display:none;">
+    <div id="tale-text"></div>
+    <div id="tale-actions">
+      <button class="tale-btn" id="btn-listen">🔊 DİNLE</button>
+      <button class="tale-btn" id="btn-stop">⏹ DURDUR</button>
+      <button class="tale-btn" id="btn-game-from-tale">🎯 OYUNA GEÇ</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ── TRANSLATIONS ── */
+var T={
+  tr:{
+    logoMain:'82 İl 82 Masal',logoSub:'Anadolu Masal Ağı',
+    guestHint:'Bir ile tıkla, masalı keşfet!',
+    navHome:'ANASAYFA',navMap:'HARİTA',navGame:'OYUN',navBadges:'ROZETLER',navLb:'SIRALAMA',navContact:'İLETİŞİM',
+    btnLogout:'Çıkış',btnLang:'🇬🇧 EN',btnDownload:'⬇ İndir',
+    heroTitle:'82 İL 82 MASAL',heroSub:'Anadolu Masal Ağı\'na hoşgeldiniz.',
+    btnGotoMap:'Haritaya Git',btnGotoGame:'Oyunlar',btnGotoContact:'İletişim',
+    progressLbl:'KEŞFEDİLEN İLLER',
+    taleSubtitle:'Anadolu Masalı',
+    panelAuthTitle:'MASALI KEŞFETMEk İÇİN',
+    panelAuthSub:'Ücretsiz kayıt ol — sadece bir isim yeterli!',
+    miniTabReg:'Kayıt Ol',miniTabLogin:'Giriş Yap',
+    miniLblName:'AD SOYAD',miniNamePh:'Adınızı giriniz',miniBtnReg:'MACERAYA BAŞLA',
+    miniLblCid:'BULUT KİMLİK NUMARANIZ',miniNote:'Bu numarayı not alın!',
+    miniBtnContinue:'DEVAM ET →',miniLblCode:'BULUT KİMLİK NUMARASI',miniCodePh:'Örn: 4821',
+    miniBtnLogin:'GİRİŞ YAP',
+    msgShort:'Lütfen adınızı girin.',msgRegOk:'Kayıt başarılı!',
+    msgBadCode:'4 haneli kod girin.',msgNotFound:'Kod bulunamadı.',
+    btnListen:'🔊 DİNLE',btnStop:'⏹ DURDUR',btnGameFromTale:'🎯 OYUNA GEÇ',
+    gameTitle:'MASAL DEĞERLERİ OYUNU',
+    gameDesc:'Masallardaki evrensel değerleri keşfet ve sorulara cevap ver!',
+    scoreLbl:'PUAN',correctLbl:'DOĞRU',totalLbl:'TOPLAM',
+    vtabAll:'Tümü',btnRandom:'🎲 Rastgele Soru',btnReset:'↺ Sıfırla',
+    correct:'✦ Doğru! +100 Bulut Puanı!',wrong:'✗ Yanlış. Doğrusu: ',btnNext:'Sonraki Soru →',
+    badgesTitle:'ROZETLERİM',badgesDesc:'Başarılarını topla, Anadolu\'nun gerçek gezgini ol!',
+    lbTitle:'SIRALAMA',lbDesc:'Bu cihazdaki en iyi gezginler',
+    contactTitle:'İLETİŞİM',contactSub:'Proje hakkında düşüncelerinizi paylaşın',
+    contactNamePh:'Adınız Soyadınız',contactEmailPh:'E-posta adresiniz',
+    contactMsgPh:'Düşüncelerinizi yazın...',contactSubmit:'GÖNDER',
+    discovered:' keşfedildi!',speechErr:'Tarayıcınız ses desteklemiyor.',
+    completionTitle:'TÜM TÜRKİYE KEŞFEDİLDİ!',
+    completionText:'82 ilin tamamını keşfettin! Sen gerçek bir Masal Kahramanısın!',
+    completionBtn:'DEVAM ET',
+    lbEmpty:'Henüz oyuncu yok.',
+    badgeNew:'YENİ ROZET KAZANILDI!'
+  },
+  en:{
+    logoMain:'82 Cities 82 Tales',logoSub:'Anatolian Fairy Tale Network',
+    guestHint:'Click a city to discover its tale!',
+    navHome:'HOME',navMap:'MAP',navGame:'GAME',navBadges:'BADGES',navLb:'RANKING',navContact:'CONTACT',
+    btnLogout:'Logout',btnLang:'🇹🇷 TR',btnDownload:'⬇ Download',
+    heroTitle:'82 CITIES 82 TALES',heroSub:'Welcome to the Anatolian Fairy Tale Network.',
+    btnGotoMap:'Go to Map',btnGotoGame:'Games',btnGotoContact:'Contact',
+    progressLbl:'DISCOVERED CITIES',
+    taleSubtitle:'Anatolian Fairy Tale',
+    panelAuthTitle:'TO DISCOVER THE TALE',
+    panelAuthSub:'Register free — just a name is enough!',
+    miniTabReg:'Register',miniTabLogin:'Login',
+    miniLblName:'FULL NAME',miniNamePh:'Enter your name',miniBtnReg:'BEGIN THE JOURNEY',
+    miniLblCid:'YOUR CLOUD ID',miniNote:'Write this down!',
+    miniBtnContinue:'CONTINUE →',miniLblCode:'CLOUD ID NUMBER',miniCodePh:'E.g. 4821',
+    miniBtnLogin:'LOG IN',
+    msgShort:'Please enter your name.',msgRegOk:'Registration successful!',
+    msgBadCode:'Enter a valid 4-digit code.',msgNotFound:'Code not found.',
+    btnListen:'🔊 LISTEN',btnStop:'⏹ STOP',btnGameFromTale:'🎯 PLAY QUIZ',
+    gameTitle:'FAIRY TALE VALUES GAME',
+    gameDesc:'Discover the universal values in fairy tales and answer the questions!',
+    scoreLbl:'SCORE',correctLbl:'CORRECT',totalLbl:'TOTAL',
+    vtabAll:'All',btnRandom:'🎲 Random Question',btnReset:'↺ Reset',
+    correct:'✦ Correct! +100 Cloud Points!',wrong:'✗ Wrong. Answer: ',btnNext:'Next Question →',
+    badgesTitle:'MY BADGES',badgesDesc:'Collect achievements, become a true explorer!',
+    lbTitle:'RANKING',lbDesc:'Top explorers on this device',
+    contactTitle:'CONTACT',contactSub:'Share your thoughts about the project',
+    contactNamePh:'Your Full Name',contactEmailPh:'Your e-mail',
+    contactMsgPh:'Write your thoughts...',contactSubmit:'SEND',
+    discovered:' discovered!',speechErr:"Browser doesn't support speech.",
+    completionTitle:'ALL OF TURKEY EXPLORED!',
+    completionText:'You discovered all 82 cities! You are a true Tale Hero!',
+    completionBtn:'CONTINUE',
+    lbEmpty:'No players yet.',
+    badgeNew:'NEW BADGE UNLOCKED!'
+  }
+};
+
+/* ── BADGES ── */
+var BADGES=[
+  {id:'first',icon:'🌱',nameTr:'İlk Adım',nameEn:'First Step',descTr:'İlk ilini keşfettin!',descEn:'First city discovered!',check:function(u){return u.discovered.length>=1;}},
+  {id:'ten',icon:'🔟',nameTr:'On İl',nameEn:'Ten Cities',descTr:'10 ili keşfettin.',descEn:'10 cities discovered.',check:function(u){return u.discovered.length>=10;}},
+  {id:'quarter',icon:'🗺️',nameTr:'Çeyrek Türkiye',nameEn:'Quarter Turkey',descTr:'21 ili keşfettin.',descEn:'21 cities discovered.',check:function(u){return u.discovered.length>=21;}},
+  {id:'half',icon:'⭐',nameTr:'Yarım Harita',nameEn:'Half Map',descTr:'41 ili keşfettin.',descEn:'41 cities discovered.',check:function(u){return u.discovered.length>=41;}},
+  {id:'full',icon:'🏆',nameTr:'Masal Kahramanı',nameEn:'Tale Hero',descTr:'Tüm 82 ili keşfettin!',descEn:'All 82 cities!',check:function(u){return u.discovered.length>=82;}},
+  {id:'value10',icon:'💎',nameTr:'Değer Bilgesi',nameEn:'Value Sage',descTr:'10 değer sorusu doğru!',descEn:'10 value questions correct!',check:function(u){return (u.quizCorrect||0)>=10;}},
+  {id:'value25',icon:'🧠',nameTr:'Masal Filozofu',nameEn:'Tale Philosopher',descTr:'25 değer sorusu doğru!',descEn:'25 correct!',check:function(u){return (u.quizCorrect||0)>=25;}},
+  {id:'score500',icon:'💫',nameTr:'500 Puan',nameEn:'500 Points',descTr:'500 puana ulaştın.',descEn:'Reached 500 points.',check:function(u){return u.score>=500;}},
+  {id:'score1000',icon:'👑',nameTr:'Puan Şampiyonu',nameEn:'Champion',descTr:'1000 puana ulaştın!',descEn:'Reached 1000 points!',check:function(u){return u.score>=1000;}},
+  {id:'courage',icon:'💪',nameTr:'Cesaret Ustası',nameEn:'Courage Master',descTr:'Tüm cesaret sorularını doğru yanıtladın.',descEn:'All courage questions correct.',check:function(u){return (u.correctByVal&&u.correctByVal['cesaret']||0)>=3;}},
+  {id:'love',icon:'❤️',nameTr:'Sevgi Elçisi',nameEn:'Love Ambassador',descTr:'Tüm sevgi sorularını doğru yanıtladın.',descEn:'All love questions correct.',check:function(u){return (u.correctByVal&&u.correctByVal['sevgi']||0)>=3;}}
+];
+
+/* ── VALUE QUESTIONS ── */
+var VALUE_QS=[
+  /* CESARET */
+  {value:'cesaret',valueName:'Cesaret',valueNameEn:'Courage',province:'Ağrı',provinceEn:'Ağrı',
+   q:'Ağrı masalında genç çoban Ağrı Dağı\'na hangi değeri taşıyarak çıktı?',
+   qEn:'In the Ağrı tale, what value did the young shepherd carry when climbing Mount Ararat?',
+   opts:['Zenginlik','Cesaret','Bilgelik','Şans'],optsEn:['Wealth','Courage','Wisdom','Luck'],ans:1,
+   explain:'Fırtınaya ve kara rağmen vazgeçmeyen çoban, cesaretin ödülünü altın yıldızlı beyaz atı görmekle aldı.',
+   explainEn:'The shepherd did not give up despite the storm — courage was rewarded with the sight of the white horse.'},
+  {value:'cesaret',valueName:'Cesaret',valueNameEn:'Courage',province:'Muş',provinceEn:'Muş',
+   q:'Muş masalındaki efsane atı gören kişilerin kalbine ne ekildi?',
+   qEn:'What was planted in the hearts of those who saw the legendary horse in the Muş tale?',
+   opts:['Korku tohumu','Cesaret tohumu','Umut tohumu','Sevgi tohumu'],optsEn:['Fear seed','Courage seed','Hope seed','Love seed'],ans:1,
+   explain:'At görünmez ama etkisi görünür: karanlıkta koşan at, onu görenlere cesaret aşılar.',
+   explainEn:'The horse is invisible yet its effect is real: it plants courage in the hearts of those who witness it.'},
+  {value:'cesaret',valueName:'Cesaret',valueNameEn:'Courage',province:'Hakkari',provinceEn:'Hakkari',
+   q:'Hakkari masalında kartal yıldızları kanatları arasında sakladı. Bu davranış hangi değeri temsil eder?',
+   qEn:'In the Hakkari tale the eagle hid stars between its wings. What value does this represent?',
+   opts:['Açgözlülük','Tembellik','Fedakârlık ve cesaret','Kıskançlık'],optsEn:['Greed','Laziness','Sacrifice and courage','Jealousy'],ans:2,
+   explain:'Kartal, topluluk için soğuğa ve zirveye meydan okur — bu fedakârlık cesaretin ta kendisidir.',
+   explainEn:'The eagle challenges cold and heights for the community — this sacrifice is courage itself.'},
+
+  /* SEVGİ */
+  {value:'sevgi',valueName:'Sevgi',valueNameEn:'Love',province:'Bingöl',provinceEn:'Bingöl',
+   q:'Bingöl masalında hasta kardeşin iyileşmesini sağlayan ne oldu?',
+   qEn:'What caused the sick sister to recover in the Bingöl tale?',
+   opts:['Sihirli bir ilaç','Kardeşe duyulan sevgi','Bir büyücü','Para'],optsEn:['A magic potion','Love for the sister','A wizard','Money'],ans:1,
+   explain:'Kardeş sevgisi pınarı coşturdu ve iyileşmeyi getirdi. Sevgi, masallarda en büyük şifalayıcıdır.',
+   explainEn:'Love for the sister made the spring surge and brought healing. Love is the greatest healer in fairy tales.'},
+  {value:'sevgi',valueName:'Sevgi',valueNameEn:'Love',province:'Konya',provinceEn:'Konya',
+   q:'Konya masalında dervişin rüzgara bıraktığı dua çocuklara ne olarak ulaştı?',
+   qEn:'In the Konya tale, how did the dervish\'s prayer reach the children?',
+   opts:['Rüya olarak','Gülümseme olarak','Hediye olarak','Şarkı olarak'],optsEn:['As a dream','As a smile','As a gift','As a song'],ans:1,
+   explain:'Sevgi ve dua somut şeyler olmadan bile insanlara ulaşabilir — tıpkı bir gülümseme gibi.',
+   explainEn:'Love and prayer can reach people without physical form — just like a smile.'},
+  {value:'sevgi',valueName:'Sevgi',valueNameEn:'Love',province:'Gaziantep',provinceEn:'Gaziantep',
+   q:'Gaziantep masalında büyükannenin baklavaya sakladığı dileği neydi?',
+   qEn:'What was the grandmother\'s wish hidden in the baklava in the Gaziantep tale?',
+   opts:['Zenginlik','Şöhret','Tüm insanların tok uyuması','Uzun ömür'],optsEn:['Wealth','Fame','Everyone goes to sleep full','Long life'],ans:2,
+   explain:'En büyük sevgi kendi çıkarını değil başkalarının mutluluğunu dilemektir.',
+   explainEn:'The greatest love is wishing for others\' happiness, not your own benefit.'},
+
+  /* DÜRÜSTLÜK */
+  {value:'dürüstlük',valueName:'Dürüstlük',valueNameEn:'Honesty',province:'Ankara',provinceEn:'Ankara',
+   q:'Ankara masalında tilki şehrin kalbini neyin içinde buldu?',
+   qEn:'In the Ankara tale, where did the fox find the heart of the city?',
+   opts:['Altında','Hatırada','Bir binada','Nehirde'],optsEn:['Underground','In memory','In a building','In a river'],ans:1,
+   explain:'Gerçek değerler görünmez yerlerde saklıdır; dürüst bir arayış onu bulur.',
+   explainEn:'True values hide in invisible places; an honest search finds them.'},
+  {value:'dürüstlük',valueName:'Dürüstlük',valueNameEn:'Honesty',province:'Kıbrıs',provinceEn:'Cyprus',
+   q:'Kıbrıs masalında iki toplum hangi değer sayesinde birbirine yakınlaştı?',
+   qEn:'In the Cyprus tale, through which value did the two communities come together?',
+   opts:['Güç','Ortak masal','Para','Savaş'],optsEn:['Power','A shared tale','Money','War'],ans:1,
+   explain:'Aynı masalı paylaşmak, aynı değerleri taşıdığını dürüstçe kabul etmektir.',
+   explainEn:'Sharing the same tale is honestly acknowledging that you carry the same values.'},
+  {value:'dürüstlük',valueName:'Dürüstlük',valueNameEn:'Honesty',province:'Uşak',provinceEn:'Uşak',
+   q:'Uşak masalındaki halıcı ustası hataları nasıl değerlendirdi?',
+   qEn:'How did the master carpet weaver evaluate mistakes in the Uşak tale?',
+   opts:['Sakladı','Yok saydı','Çiçeğe dönüştürdü','Attı'],optsEn:['Hid them','Ignored them','Turned them into flowers','Threw them away'],ans:2,
+   explain:'Hatayı kabul etmek ve onu güzelleştirmek dürüstlüğün ve yaratıcılığın birleşimidir.',
+   explainEn:'Accepting mistakes and transforming them is the union of honesty and creativity.'},
+
+  /* PAYLAŞIM */
+  {value:'paylaşım',valueName:'Paylaşım',valueNameEn:'Sharing',province:'Balıkesir',provinceEn:'Balıkesir',
+   q:'Balıkesir masalında dağ keçisi her yıl bulduğu hazineyi ne yaptı?',
+   qEn:'What did the mountain goat do with the treasure it found every year in the Balıkesir tale?',
+   opts:['Sakladı','Yedi','Bir sonraki gezgine bıraktı','Gömdü'],optsEn:['Hid it','Ate it','Left it for the next traveller','Buried it'],ans:2,
+   explain:'Gerçek zenginlik paylaşıldığında büyür — bu masal bize paylaşımın değerini öğretir.',
+   explainEn:'Real wealth grows when shared — this tale teaches us the value of sharing.'},
+  {value:'paylaşım',valueName:'Paylaşım',valueNameEn:'Sharing',province:'Bolu',provinceEn:'Bolu',
+   q:'Bolu masalında yolu bulan gezginlerin yükümlülüğü neydi?',
+   qEn:'What was the obligation of travellers who found their way in the Bolu tale?',
+   opts:['Peri anaya hediye vermek','Bir sonraki kaybolana yardım etmek','Ormanda kalmak','Hiçbir şey'],optsEn:['Give a gift to the fairy','Help the next lost person','Stay in the forest','Nothing'],ans:1,
+   explain:'İyilik zinciri kırılmaz: aldığın yardımı başkasına iletmek paylaşımın özüdür.',
+   explainEn:'The chain of kindness must not break: passing on help to others is the essence of sharing.'},
+  {value:'paylaşım',valueName:'Paylaşım',valueNameEn:'Sharing',province:'Ordu',provinceEn:'Ordu',
+   q:'Ordu masalında peri ana her fındığa ne üfledi?',
+   qEn:'What did the fairy mother breathe into every hazelnut in the Ordu tale?',
+   opts:['Rüzgar','Dua','Ninni','Işık'],optsEn:['Wind','A prayer','A lullaby','Light'],ans:2,
+   explain:'Sevgiyi ve sıcaklığı paylaşmak, onu somut nesnelere bile işleyebilir.',
+   explainEn:'Sharing love and warmth can embed it even into physical objects.'},
+
+  /* SABIR */
+  {value:'sabır',valueName:'Sabır',valueNameEn:'Patience',province:'Hatay',provinceEn:'Hatay',
+   q:'Hatay masalında gizli mesaj ne zaman okunabiliyordu?',
+   qEn:'When could the hidden message be read in the Hatay tale?',
+   opts:['Her zaman','Yalnızca tam dolunayda','Yağmurda','Gün doğumunda'],optsEn:['Always','Only on a full moon','In rain','At sunrise'],ans:1,
+   explain:'Sabırsız olan mesajı hiç okuyamadı. Sabır, gizli güzelliklerin kapısını açar.',
+   explainEn:'The impatient never read the message. Patience opens the door to hidden beauty.'},
+  {value:'sabır',valueName:'Sabır',valueNameEn:'Patience',province:'Kastamonu',provinceEn:'Kastamonu',
+   q:'Kastamonu masalında yüz yıllık kapı ne zaman açıldı?',
+   qEn:'When did the hundred-year-old door open in the Kastamonu tale?',
+   opts:['Gece yarısı','Yağmurda','Bahar sabahı ilk güneşte','Kışın'],optsEn:['At midnight','In rain','At first spring light','In winter'],ans:2,
+   explain:'Doğru an beklenmeden kapı açılmaz — sabır zamanlamanın ustasıdır.',
+   explainEn:'Without waiting for the right moment the door does not open — patience masters timing.'},
+  {value:'sabır',valueName:'Sabır',valueNameEn:'Patience',province:'Trabzon',provinceEn:'Trabzon',
+   q:'Trabzon masalında keşiş yüzyıllar boyunca ne yaptı?',
+   qEn:'What did the monk do for centuries in the Trabzon tale?',
+   opts:['Uyudu','Her yıl bir kelime kazıdı','Masal anlattı','Seyahat etti'],optsEn:['Slept','Carved one word each year','Told tales','Travelled'],ans:1,
+   explain:'Yüzyıllarca süren sabır, en güzel duayı ortaya çıkardı.',
+   explainEn:'Centuries of patience revealed the most beautiful prayer.'},
+
+  /* UMUT */
+  {value:'umut',valueName:'Umut',valueNameEn:'Hope',province:'Kars',provinceEn:'Kars',
+   q:'Kars masalında geyiğin izleri yolcular için ne anlama geliyordu?',
+   qEn:'What did the deer\'s tracks mean for travellers in the Kars tale?',
+   opts:['Tehlike işareti','Altın yolu ve umut','Hayvan geçişi','Kaybolma'],optsEn:['Danger sign','A golden path and hope','Animal crossing','Getting lost'],ans:1,
+   explain:'Karanlık kış gecesinde yıldız izleri bir umut ışığı gibi yolu gösterdi.',
+   explainEn:'In the dark winter night, star-shaped tracks shone like a light of hope.'},
+  {value:'umut',valueName:'Umut',valueNameEn:'Hope',province:'Şanlıurfa',provinceEn:'Şanlıurfa',
+   q:'Şanlıurfa masalında balık dua edenlerin yüreklerine ne bıraktı?',
+   qEn:'What did the fish leave in the hearts of those who prayed in the Şanlıurfa tale?',
+   opts:['Korku','Huzur ve umut','Üzüntü','Güç'],optsEn:['Fear','Peace and hope','Sorrow','Strength'],ans:1,
+   explain:'Huzur ve umut, inanç ve sevgiyle beslendiğinde en karanlık kalplere bile ulaşır.',
+   explainEn:'Peace and hope, nourished by faith and love, reach even the darkest hearts.'},
+  {value:'umut',valueName:'Umut',valueNameEn:'Hope',province:'Kıbrıs',provinceEn:'Cyprus',
+   q:'Kıbrıs masalının sonunda iki toplum arasında ne doğdu?',
+   qEn:'What arose between the two communities at the end of the Cyprus tale?',
+   opts:['Savaş','Gülümseme ve umut','Korku','Sessizlik'],optsEn:['War','A smile and hope','Fear','Silence'],ans:1,
+   explain:'Masallar sınır tanımaz; ortak hikâyeler ortak umut inşa eder.',
+   explainEn:'Tales know no borders; shared stories build shared hope.'},
+
+  /* MERHAMET */
+  {value:'merhamet',valueName:'Merhamet',valueNameEn:'Compassion',province:'Kahramanmaraş',provinceEn:'Kahramanmaraş',
+   q:'Kahramanmaraş masalında dondurma ustası mutsuz çocuğa ne hediye etti?',
+   qEn:'What did the ice cream master give the unhappy child in the Kahramanmaraş tale?',
+   opts:['Para','Annesiyle geçirdiği son sabahın tadı','Yeni bir oyuncak','Tatlı bir rüya'],optsEn:['Money','The taste of his last morning with his mother','A new toy','A sweet dream'],ans:1,
+   explain:'Merhamet para ile değil, en derin acıyı anlayan bir yürekle ifade edilir.',
+   explainEn:'Compassion is expressed not with money but with a heart that understands the deepest pain.'},
+  {value:'merhamet',valueName:'Merhamet',valueNameEn:'Compassion',province:'Artvin',provinceEn:'Artvin',
+   q:'Artvin masalında avcı ayının şarkısını duyunca ne yaptı?',
+   qEn:'What did the hunter do when he heard the bear\'s song in the Artvin tale?',
+   opts:['Daha hızlı koştu','Yayını bıraktı ve koruyucu oldu','Uyudu','Kaçtı'],optsEn:['Ran faster','Put down his bow and became protector','Slept','Ran away'],ans:1,
+   explain:'Merhamet insanı değiştirir: bir av avcısı, doğanın koruyucusuna dönüşür.',
+   explainEn:'Compassion transforms people: a hunter becomes a protector of nature.'},
+  {value:'merhamet',valueName:'Merhamet',valueNameEn:'Compassion',province:'Kilis',provinceEn:'Kilis',
+   q:'Kilis masalındaki bahçıvan kendisini ne olarak tanımladı?',
+   qEn:'How did the gardener in the Kilis tale describe himself?',
+   opts:['Bir tüccar','Bir çiftçi','Bu bahçenin masalı','Bir yolcu'],optsEn:['A merchant','A farmer','This garden\'s fairy tale','A traveller'],ans:2,
+   explain:'Merhameti olan kişi kendini doğanın bir parçası olarak görür; ben değil biz der.',
+   explainEn:'A compassionate person sees themselves as part of nature; they say "we," not "I."'}
+];
+
+/* ── PROVINCE DATA ── */
+var PROVINCES=[
+  {id:1,name:'Adana',nameEn:'Adana',lat:37.00,lng:35.32,tale:'Bir zamanlar Seyhan kıyısında yaşlı bir demirci varmış. Her gece ocağından altın kıvılcımlar saçılır, bu kıvılcımlardan masallar doğarmış. Demirci bir gün ördüğü demir kafesten bir güvercin uçurmuş; güvercin her köye bir masal tohumunu bırakmış ve bahar geldiğinde o tohumlardan sesler açmış.',taleEn:'Once upon a time an old blacksmith lived by the Seyhan River. Golden sparks flew from his furnace each night and tales were born. He released a dove from an iron cage; it left a seed of story in every village, and in spring those seeds bloomed as voices.'},
+  {id:2,name:'Adıyaman',nameEn:'Adıyaman',lat:37.76,lng:38.27,tale:'Nemrut\'un zirvesinde taştan yapılmış devler varmış. Güneş doğduğunda devler uyanır, akşam olduğunda tekrar uyurlarmış. Bir çoban çocuğu bir gece devlerin uyumadığını fark etmiş; baktı ki devler gökyüzündeki yıldızlarla fısıldaşıyorlar.',taleEn:'On the summit of Nemrut stood giants made of stone. They woke at sunrise and slept at dusk. One night a shepherd boy noticed they were awake, whispering to the stars.'},
+  {id:3,name:'Afyonkarahisar',nameEn:'Afyonkarahisar',lat:38.75,lng:30.54,tale:'Haşhaş tarlalarının ortasında bir kız uyku ile uyanıklık arasında dolaşırmış. Her sabah tarladan farklı bir rüya topladığını söylermiş. Bir gün en güzel rüyayı bulmuş; ama onu anlatınca herkes uyuyakalmış.',taleEn:'A girl wandered between sleep and wakefulness in poppy fields. Each morning she collected a different dream. One day she found the most beautiful dream — but when she told it, everyone fell asleep.'},
+  {id:4,name:'Ağrı',nameEn:'Ağrı',lat:39.72,lng:43.05,tale:'Ağrı Dağı\'nın tepesinde beyaz bir at yaşarmış. At sadece cesaretli insanlara görünürmüş. Bir çoban genç atı görmek için dağa çıkmış; fırtınaya rağmen vazgeçmemiş. Tepeye ulaştığında at oradaydı, alnında altın bir yıldızla.',taleEn:'On the peak of Mount Ararat lived a white horse visible only to the brave. A young shepherd climbed despite the storm and did not give up. When he reached the summit the horse was there, a golden star on its forehead.'},
+  {id:5,name:'Amasya',nameEn:'Amasya',lat:40.65,lng:35.83,tale:'Kaya mezarlarının gölgesinde bir prenses uyku masalları anlatırmış. Anlattığı her masalda bir kapı açılır, o kapıdan geçenler taşa dönüp tekrar canlanırlarmış. Prenses gülümseyince taş insanlar uyanır ve en sevdiklerini ararlardı.',taleEn:'A princess told sleep tales in the shadow of rock tombs. In each tale a door opened; those who passed through turned to stone and came back to life. When the princess smiled the stone people awoke and searched for their loved ones.'},
+  {id:6,name:'Ankara',nameEn:'Ankara',lat:39.93,lng:32.86,tale:'Anıtkabir\'in eteğinde bir tilki "Bu şehrin kalbi nerede?" diye sormuş. İhtiyar bir çınar "Her sabah bayrak açıldığında duyarsın" demiş. Tilki bütün sabahları beklemiş; bir gün o sesi duyunca anlamış: Şehrin kalbi hatıraymış.',taleEn:'A fox at the foot of Anıtkabir asked "Where is the heart of this city?" An old plane tree said "You hear it every morning when the flag is raised." The fox waited every morning; one day it understood: the heart of the city was memory.'},
+  {id:7,name:'Antalya',nameEn:'Antalya',lat:36.89,lng:30.71,tale:'Akdeniz\'in mavisinde bir balık varmış, her gece kıyıya çıkıp kumda masal yazarmış. Sabah dalgalar yazıyı silermiş ama okuyanlar o masalları hiç unutmazmış.',taleEn:'A fish in the Mediterranean wrote tales in the sand each night. By morning waves erased the writing, but those who had read them never forgot.'},
+  {id:8,name:'Artvin',nameEn:'Artvin',lat:41.18,lng:41.82,tale:'Çoruh kıyısında bir ayı her gece ormanın seslerini notaya dökermiş. Ayının şarkısını duyan vahşi hayvanlar barış içinde gezermiş. Bir avcı o şarkıyı duyduktan sonra yayını bırakmış ve ormanın koruyucusu olmuş.',taleEn:'By the Çoruh a bear transcribed forest sounds into music each night. Wild animals that heard its song roamed in peace. A hunter who heard it put down his bow and became guardian of the forest.'},
+  {id:9,name:'Aydın',nameEn:'Aydın',lat:37.86,lng:27.84,tale:'Menderes kenarında bir zeytin ağacı her meyve döneminde farklı bir hikaye anlatırmış. Kim o zeytini yerse dilinin ucuna bir masal gelirmiş. Bir gün çocuklar tüm zeytinleri yemiş ve sabaha kadar masal anlatmışlar.',taleEn:'An olive tree by the Menderes told a different story each season. Whoever ate its olives found a tale on the tip of their tongue. One day children ate all the olives and told stories until morning.'},
+  {id:10,name:'Balıkesir',nameEn:'Balıkesir',lat:39.65,lng:27.89,tale:'Kaz Dağları\'nda bir dağ keçisi her yıl bir hazine bulurmuş ama onu almak yerine bir sonraki gezgine bırakırmış. Bir fakir çoban hazineyi bulmuş; keçinin gözlerine bakınca anlamış: Hazineyi taşımak değil, onun hikayesini yaşatmak gerekiyormuş.',taleEn:'A mountain goat in the Kaz Mountains found a treasure every year but left it for the next traveller. A poor shepherd found it; looking into the goat\'s eyes he understood — the story was to be kept alive, not the treasure.'},
+  {id:11,name:'Bilecik',nameEn:'Bilecik',lat:40.14,lng:29.98,tale:'Söğüt ovasında bir şaman rüzgarda gelen sesleri çözümlermiş. Her ses bir atanın mesajıymış. Genç bir delikanlı o sesleri dinleyerek köyünü kuraklıktan kurtaracak kaynağı bulmuş.',taleEn:'A shaman in the Söğüt plain decoded sounds in the wind, each a message from an ancestor. A young man listened and found the spring that would save his village from drought.'},
+  {id:12,name:'Bingöl',nameEn:'Bingöl',lat:38.88,lng:40.50,tale:'Peri kayalarının dibinde bir pınar varmış, yalnızca kalbi temiz olanlara görünürmüş. Küçük bir kız kardeşine duyduğu sevgiyi pınara anlatmış; pınar coşmuş ve hasta kardeşi iyileşmiş.',taleEn:'At the foot of the Fairy Rocks a spring was visible only to the pure-hearted. A girl told the spring about her love for her sister; the spring surged and her sick sister recovered.'},
+  {id:13,name:'Bitlis',nameEn:'Bitlis',lat:38.40,lng:42.11,tale:'Nemrut Gölü\'nde yaşayan bir kaplumbağa bin yıllık hikayeleri bellekinde saklarmış. Her dolunayda gölün ortasına çıkar masallar anlatırmış. Mavi sevinç, yeşil huzur, kızıl cesaret masallarıymış.',taleEn:'A tortoise in Lake Nemrut stored a thousand years of stories. Every full moon it told tales — blue for joy, green for peace, red for courage.'},
+  {id:14,name:'Bolu',nameEn:'Bolu',lat:40.73,lng:31.61,tale:'Yedigöller ormanında bir orman perisi varmış, yolu kaybolan gezginlere yol gösterirmiş. Yolu bulanlar bir sonraki kaybolana yardım etmekle yükümlüymüş.',taleEn:'A fairy in the Yedigöller forest guided lost travellers. Those who found their way were obliged to help the next lost person.'},
+  {id:15,name:'Burdur',nameEn:'Burdur',lat:37.72,lng:30.29,tale:'Salda Gölü\'nün beyaz kıyılarında bir martı her uçuşunda bir dilek taşırmış. Dilekler gölün dibinde kum kalelere dönüşürmüş.',taleEn:'A seagull on the white shores of Lake Salda carried a wish on every flight. Wishes turned into sand castles at the lake bed.'},
+  {id:16,name:'Bursa',nameEn:'Bursa',lat:40.18,lng:29.06,tale:'Uludağ\'ın zirvesinden inen bir kar tanesi şehir meydanına düşmüş. O kar tanesi aslında bir masalın son kelimesiymiş. Ustalar ipek kumaşlara o kelimeyi işleyince, kumaş giyenler birbirini sevebiliyormuş.',taleEn:'A snowflake from the peak of Uludağ fell in the city square — it was the last word of a tale. When masters embroidered it into silk, those who wore the fabric could love one another.'},
+  {id:17,name:'Çanakkale',nameEn:'Çanakkale',lat:40.15,lng:26.41,tale:'Boğaz\'ın ötesinde bir deniz kızı varmış, her geçen gemiye bir türkü söylermiş. Türküyü tamamlamadan önce gemi kıyıya ulaşırdı. Türkünün sonu hiç duyulmamış, ama o yarım türkünün hüznüyle dalgalar hiç dinmemiş.',taleEn:'A mermaid beyond the Strait sang a ballad to every passing ship. Before she finished, the ship always reached shore. The ending was never heard, but the waves never calmed.'},
+  {id:18,name:'Çankırı',nameEn:'Çankırı',lat:40.60,lng:33.61,tale:'Tuz Gölü\'nün kenarında bir kız her gün tuzdan heykeller yaparmış. Yağmur yağdığında heykeller erirmiş ama kız üzülmezmiş: "Tuzdular, denize döndüler" dermiş.',taleEn:'A girl made salt sculptures every day by the Salt Lake. When rain fell they melted, but she was not sad: "They were salt," she said, "they returned to the sea."'},
+  {id:19,name:'Çorum',nameEn:'Çorum',lat:40.55,lng:34.95,tale:'Hititlerin şehrinde bir çocuk topraktan tablet bulmuş. Tableti okuyunca 3000 yıl önceki bir masalı seslendirmiş. O sesi duyan tarihçiler unutulmuş bir dilin son kelimesini öğrenmişler.',taleEn:'A child in the Hittite city found a clay tablet. Reading it aloud voiced a tale from 3000 years ago. Historians who heard it learned the last word of a forgotten language.'},
+  {id:20,name:'Denizli',nameEn:'Denizli',lat:37.77,lng:29.09,tale:'Pamukkale\'nin beyaz travertenlerinden bir su perisi varmış. Sıcak sulardan çıkan buhardan şekiller yaratırmış. Bir genç kız o şekillerde anne ve babasını görmüş ve sevgiyle iyileşmiş.',taleEn:'A water fairy from the white travertines of Pamukkale shaped figures from steam. A young girl saw her parents in those shapes and was healed by love.'},
+  {id:21,name:'Diyarbakır',nameEn:'Diyarbakır',lat:37.91,lng:40.23,tale:'Surların gölgesinde bir bağcı her yıl kara üzümünden mor şarap yaparmış. Şarabı içenler bir gece boyunca şehrin tarihini rüyalarında yaşarlarmış.',taleEn:'A vine-grower in the shadow of the walls made purple wine each year. Those who drank it lived the city\'s history in dreams for one night.'},
+  {id:22,name:'Edirne',nameEn:'Edirne',lat:41.68,lng:26.56,tale:'Tunca ve Meriç\'in kavuştuğu yerde iki nehir aslında iki kardeşmiş. Yüzyıllarca birbirini aramışlar; kavuşunca şehri kuşatmışlar. Her gece ayrı masallar fısıldarmış; sabah suları birleşmiş ve tek bir masal oluşmuş.',taleEn:'Where the Tunca and Meriç meet the two rivers were siblings. For centuries they searched for each other; upon meeting they embraced the city. Each night they whispered separate tales; by morning their waters merged into one.'},
+  {id:23,name:'Elazığ',nameEn:'Elazığ',lat:38.68,lng:39.22,tale:'Hazar Gölü\'nde yaşayan bir sazan balığı her yüzdüğünde gümüş ışıklar bırakırmış. Balıkçılar onu tutmak yerine izini takip edermiş; iz onları gizli koylara götürürmüş.',taleEn:'A carp in Lake Hazar left silver lights in its wake. Fishermen followed its trail instead of catching it; each time it led them to a hidden cove.'},
+  {id:24,name:'Erzincan',nameEn:'Erzincan',lat:39.75,lng:39.49,tale:'Fırat\'ın kaynağına yakın bir çoban her gece yıldızlara bakıp sayarmış. Saydığı yıldız sayısı kadar koyunu doğuruyormuş. Bir gece bulutsuz gökyüzünde o kadar çok yıldız saydı ki ovalar koyunla doldu.',taleEn:'A shepherd near the source of the Euphrates counted stars every night. As many stars as he counted, that many lambs were born. One cloudless night the plains filled with sheep.'},
+  {id:25,name:'Erzurum',nameEn:'Erzurum',lat:39.90,lng:41.27,tale:'Palandöken\'in serin rüzgarında bir derviş varmış. Fısıldadığı her kelime kara dönüşürmüş. Kış gelince dervişin tüm sözcükleri yağarmış; bahar gelince kar erimiş ve sözcükler çiçeklere dönüşmüş.',taleEn:'A dervish lived in the cool wind of Palandöken. Every word he whispered turned to snow. When winter came his words fell; when spring came the snow melted and the words became flowers.'},
+  {id:26,name:'Eskişehir',nameEn:'Eskişehir',lat:39.78,lng:30.52,tale:'Porsuk Çayı kıyısında bir lületaşı ustası varmış. Oyduğu her pipoda bir masal saklıymış. Pipo alanlar geceleri duman değil sesler çıktığını söylermiş; o sesler evlere huzur doldurmaktaymış.',taleEn:'A meerschaum master lived by the Porsuk. A tale was hidden in every pipe he carved. Those who bought pipes heard sounds rather than smoke at night — sounds that filled their homes with peace.'},
+  {id:27,name:'Gaziantep',nameEn:'Gaziantep',lat:37.07,lng:37.38,tale:'Fıstık bahçesinde bir büyükanne her yıl baklavasının içine bir dilek saklarmış. Kim o dilim baklavayı yese yüreğinin en gizli dileği gerçekleşirmiş. Büyükannenin dileği "tüm insanların tok uyuması"ymış.',taleEn:'A grandmother hid a wish in her baklava every year. Whoever ate that slice would have their deepest wish come true. Her own wish was "that all people go to sleep full."'},
+  {id:28,name:'Giresun',nameEn:'Giresun',lat:40.91,lng:38.39,tale:'Giresun Adası\'nda bir Amazon\'un kılıcı toprak altındaymış ve üstünde fındık ağaçları yetişiyormuş. Her sonbahar fındık toplandığında bir amazon ruhunun güldüğü duyulurmuş.',taleEn:'An Amazon\'s sword lay underground on Giresun Island with hazelnut trees growing above. Every autumn when hazelnuts were gathered, an amazon spirit\'s laughter could be heard.'},
+  {id:29,name:'Gümüşhane',nameEn:'Gümüşhane',lat:40.46,lng:39.48,tale:'Madenlerin gümüş damarlarında minik ışık böcekleri yaşarmış. Her gece bir madenci lambası söndüğünde, böcekler ışıkla yolu aydınlatırlarmış.',taleEn:'Tiny glowbugs lived in the silver veins of the mines. Every time a miner\'s lamp went out, the bugs lit up the path.'},
+  {id:30,name:'Hakkari',nameEn:'Hakkari',lat:37.57,lng:43.74,tale:'Cilo Dağı\'nın zirvesinde bir kartal her yıl birer yıldız toplar, kanatları arasına saklarmış. Kış gelince kanatlarını açıp yıldızları köylere bırakırmış; köylüler soğuk gecelerde o ışıkla ısınırlarmış.',taleEn:'An eagle on Mount Cilo collected one star each year and hid them between its wings. When winter came it spread its wings and left the stars in villages; villagers warmed themselves by that light.'},
+  {id:31,name:'Hatay',nameEn:'Hatay',lat:36.40,lng:36.34,tale:'Antakya\'nın mozaiklerinde gizli bir mesaj varmış. Sadece tam dolunayda, taş parçalarının gölgeleri birleştiğinde mesaj okunabilirmiş: "Güzellik, parçaların bir arada olmasındadır."',taleEn:'A hidden message lay in the mosaics of Antioch, readable only on a full moon when shadows merged: "Beauty lies in the pieces being together."'},
+  {id:32,name:'Isparta',nameEn:'Isparta',lat:37.76,lng:30.55,tale:'Gül bahçelerinin arasında bir parfümcü varmış. Her gün farklı bir duyguyu buhurdan tüttürürmüş. Öfkeyi tüttürünce dikenlerin kaybolduğunu fark etmiş.',taleEn:'A perfumer among rose gardens burned a different emotion as incense each day. When anger was burned, the thorns disappeared.'},
+  {id:33,name:'Mersin',nameEn:'Mersin',lat:36.80,lng:34.64,tale:'Kleopatra Plajı\'nın kumlarında her gece deniz kabuklarından eski denizcilerin sesleri duyulurmuş. Bir küçük kız bir kabuğu kulağına götürünce dedesinin sesini duymuş.',taleEn:'Old sailors\' voices could be heard from sea shells on Cleopatra Beach every night. When a little girl held one to her ear she heard her grandfather\'s voice.'},
+  {id:34,name:'İstanbul',nameEn:'İstanbul',lat:41.01,lng:28.98,tale:'Boğaz\'ın köprülerinin altında bir kral balık yaşarmış. Her gün iki kıtayı birbirine bağlayan bir rüzgar üretirmiş. O rüzgar bazen Avrupa\'dan masal, bazen Asya\'dan türkü getirirmiş.',taleEn:'A king fish lived beneath the Bosphorus bridges. Each day it produced a wind connecting two continents — sometimes bringing tales from Europe, sometimes ballads from Asia.'},
+  {id:35,name:'İzmir',nameEn:'İzmir',lat:38.42,lng:27.14,tale:'Ege\'nin incisi İzmir\'de bir ney ustası varmış. Neyini denize doğru üfleyince, denizin altından bir ses yanıt verirmiş. Dalgalar nota nota kıyıya yürüyormuş.',taleEn:'A ney master in İzmir blew his ney toward the sea and a voice answered from below. The waves walked ashore note by note.'},
+  {id:36,name:'Kars',nameEn:'Kars',lat:40.61,lng:43.09,tale:'Sarıkamış karlarında bir geyik her adımıyla karda bir yıldız şekli bırakırmış. Batan güneşte kar izleri altın rengi yanar ve yolcular o ışık yolunu takip ederek köyü bulurmuş.',taleEn:'A deer in the snows of Sarıkamış left a star shape with every step. At sunset the tracks burned golden and travellers followed that path of light to find the village.'},
+  {id:37,name:'Kastamonu',nameEn:'Kastamonu',lat:41.38,lng:33.78,tale:'İlgaz Dağı\'nın ormanında bir meşe ağacı varmış, içinde yüz yıllık bir kapı saklıymış. Bahar sabahı ilk güneş o kapıya çarptığında kapı aralanmış; içinden çıkan ses: "İşte bugün başlar" demiş.',taleEn:'An oak in the İlgaz forest had a hundred-year-old door hidden inside. When the first spring morning rays struck it the door opened; a voice said: "Today it begins."'},
+  {id:38,name:'Kayseri',nameEn:'Kayseri',lat:38.72,lng:35.49,tale:'Erciyes Dağı\'nın eteğinde bir halı dokuyucu varmış. Her renkli iplik bir masalı temsil edermiş; kırmızı aşkı, mavi özlemi, sarı coşkuyu anlatırmış.',taleEn:'A carpet weaver at the foot of Mount Erciyes used every coloured thread to represent a tale — red for love, blue for longing, yellow for exuberance.'},
+  {id:39,name:'Kırklareli',nameEn:'Kırklareli',lat:41.73,lng:27.22,tale:'Trakya ovasında bir çoban her gece yıldız haritası çizermiş. Koyunları yıldızlara bakarak yol bulurmuş. Bir fırtınalı gecede harita ıslanmış; ama koyunlar yolu bulmuş çünkü haritayı yüreklerine nakşetmişlerdi.',taleEn:'A shepherd in the Thracian plain drew a star map every night. His sheep found their way by stars. On a stormy night the map got wet; the sheep still found their way because they had engraved the map in their hearts.'},
+  {id:40,name:'Kırşehir',nameEn:'Kırşehir',lat:39.14,lng:34.16,tale:'Kırşehir ovasında bir ozanın sazından çıkan sesler çiçeklere dönüşürmüş. Müzik durduğunda çiçekler de susarmış. Bir gün ozan hasta düşmüş; rüzgar esince saz kendi kendine çalmış ve ova yeniden çiçek açmış.',taleEn:'Sounds from a bard\'s saz on the Kırşehir plain turned into flowers. When music stopped flowers fell silent. One day the bard fell ill; the wind blew the saz and the plain bloomed again.'},
+  {id:41,name:'Kocaeli',nameEn:'Kocaeli',lat:40.86,lng:29.87,tale:'Marmara kıyısında bir balıkçı her sabah ağını atarken bir dilek dilermiş. Dileği ağa takılır; akşam eve gelince dilek gerçekleşmiş olurmuş. Bir gün dilemeyi unutmuş, ağ boş gelmiş.',taleEn:'A fisherman on the Marmara shore made a wish every morning while casting his net. The wish caught in the net; by evening it came true. One day he forgot and the net came back empty.'},
+  {id:42,name:'Konya',nameEn:'Konya',lat:37.87,lng:32.49,tale:'Mevlana\'nın şehrinde bir sema eden derviş her dönüşte bir duayı rüzgara bırakırmış. Dua şehrin sokaklarında dolaşır, kimi zaman bir çocuğun yüzüne gülümseme olurmuş.',taleEn:'A whirling dervish in the city of Rumi released a prayer to the wind with every turn. The prayer wandered the streets, sometimes becoming a smile on a child\'s face.'},
+  {id:43,name:'Kütahya',nameEn:'Kütahya',lat:39.42,lng:29.98,tale:'Çini ustasının atölyesinde her boya fırçası bir isim taşırmış. Mavi fırça mavi hikayeler, kırmızı fırça ateşli masallar anlatırmış. Usta ölünce fırçalar bir tabloya isimlerini yazmış.',taleEn:'Every paintbrush in the tile master\'s workshop had a name. The blue brush told blue stories, the red brush fiery tales. When the master died the brushes wrote their names on a canvas.'},
+  {id:44,name:'Malatya',nameEn:'Malatya',lat:38.35,lng:38.31,tale:'Kayısı bahçelerinde bir yaşlı çiftçi varmış. Her kayısı ağacı farklı bir rüya üretirmiş. Hasatta kim hangi ağacın meyvesini yerse, o gece o rüyayı görürmüş.',taleEn:'An old farmer in apricot orchards tended trees that each produced a different dream. Whoever ate a particular tree\'s fruit in the harvest would dream that tree\'s dream.'},
+  {id:45,name:'Manisa',nameEn:'Manisa',lat:38.61,lng:27.43,tale:'Sipil Dağı\'nın zirvesinde Niobe\'nin gözyaşlarından oluşan bir taş varmış. Her yağmur mevsimi taş ağlarmış; o gözyaşları vadilere akarmış ve çiçekler açarmış.',taleEn:'On the summit of Mount Sipil stood a rock formed from Niobe\'s tears. Every rainy season it wept; those tears flowed into the valleys and flowers bloomed.'},
+  {id:46,name:'Kahramanmaraş',nameEn:'Kahramanmaraş',lat:37.58,lng:36.94,tale:'Dondurma ustasının ellerinden geçen her dondurma farklı bir anının tadını taşırmış. Kim bir kaşık yese o anıyı birkaç saniye yaşarmış. Usta bir gün mutsuz bir çocuğa annesiyle geçirdiği son sabahın tadını hediye etti.',taleEn:'Every ice cream the master made carried the taste of a different memory. Whoever took a spoonful lived that memory for a few seconds. One day he gifted an unhappy child the taste of his last morning with his mother.'},
+  {id:47,name:'Mardin',nameEn:'Mardin',lat:37.31,lng:40.74,tale:'Taş evlerin labirentinde bir kuyumcu gümüş takılara hikayeler kazırmış. Takıyı giyen kişi o hikayenin kahramanıymış gibi hissedermiş.',taleEn:'A jeweller in the labyrinth of stone houses engraved stories into silver jewellery. Whoever wore the piece felt as though they were the hero of that story.'},
+  {id:48,name:'Muğla',nameEn:'Muğla',lat:37.21,lng:28.36,tale:'Mavi Yolculuk\'ta bir teknenin altında bir okyanusotu varmış. Rüzgarda öyle masal anlatırmış ki yolcular balıklara dönüşüp tekneyi terk etmek istermiş.',taleEn:'A sea plant beneath a Blue Voyage boat told such tales in the wind that passengers wanted to turn into fish and leave the boat.'},
+  {id:49,name:'Muş',nameEn:'Muş',lat:38.74,lng:41.49,tale:'Malazgirt ovasında bir efsane atı varmış, sadece gece koşarmış. Ayak sesleri yokmuş, yalnızca tüyleri rüzgarda ses çıkarırmış. Onu görenlerin kalbine bir cesaret tohumu ekilirmiş.',taleEn:'A legendary horse on the Malazgirt plain only ran at night. It made no hoof sounds; only its mane made sound in the wind. Those who saw it had a seed of courage planted in their hearts.'},
+  {id:50,name:'Nevşehir',nameEn:'Nevşehir',lat:38.62,lng:34.72,tale:'Kapadokya\'nın peri bacalarının içinde bir peri varmış. Her gün kaya kiliselerine masal resimleri çizermiş. Resimler geceleri canlanır, sabah olunca tekrar duruyormuş.',taleEn:'A fairy inside the fairy chimneys of Cappadocia painted fairy tale pictures on rock churches each day. The paintings came to life at night and stood still again by morning.'},
+  {id:51,name:'Niğde',nameEn:'Niğde',lat:37.97,lng:34.68,tale:'Aladağlar\'da bir mağaranın içinde çok renkli bir kristal varmış. Işık kristale çarptığında renkler duvarlara masallar yazarmış.',taleEn:'A multicoloured crystal inside a cave in the Aladağlar wrote tales on the walls when light struck it.'},
+  {id:52,name:'Ordu',nameEn:'Ordu',lat:40.98,lng:37.88,tale:'Fındık ormanlarında geceleri bir ışık gezinirmiş; o ışık aslında fındıkları toplayan bir peri anamış. Her fındığa bir ninni üflemiş.',taleEn:'A light wandered through the hazelnut forests at night — it was a fairy mother collecting hazelnuts. She breathed a lullaby into every hazelnut.'},
+  {id:53,name:'Rize',nameEn:'Rize',lat:41.02,lng:40.52,tale:'Çay bahçelerinde bir yaşlı nine her sabah çayı demlemeden önce yapraklara bakarmış. Yaprakların şeklinde o günün haberlerini okurmuş. Düz yaprak huzur, bükük yaprak misafir demekmiş.',taleEn:'An old grandmother in the tea gardens read the day\'s news in the shape of leaves every morning before brewing. Flat leaves meant peace, bent leaves meant a guest was coming.'},
+  {id:54,name:'Sakarya',nameEn:'Sakarya',lat:40.77,lng:30.40,tale:'Sapanca Gölü\'nün dibinde bir saray varmış. Sakarya Savaşı\'nın ruhları o sarayda huzur içinde yatarmış; göl her zaman temiz kalmış çünkü ruhlar suyu korurmuş.',taleEn:'A palace lay at the bottom of Lake Sapanca. The spirits of the Battle of Sakarya rested in peace there; the lake always stayed clean because the spirits protected the water.'},
+  {id:55,name:'Samsun',nameEn:'Samsun',lat:41.29,lng:36.33,tale:'Karadeniz\'in dalgalarında bir deniz kurtarıcısı varmış. Aslında insan değil bir ördekmiş; dönüştürülmüş bir prensesmiş. Her kurtarıştan sonra bir tüy bırakırmış.',taleEn:'A sea rescuer in the Black Sea waves was actually a duck — a transformed princess. After every rescue it left behind one feather.'},
+  {id:56,name:'Siirt',nameEn:'Siirt',lat:37.93,lng:41.94,tale:'Batman Çayı kıyısında bir kaya ressamı varmış. Kaya resimlerine bakanlar kendilerinden bin yıl sonrasını görebilirmiş.',taleEn:'A rock painter by the Batman Creek. Those who gazed at the rock paintings could see a thousand years into the future.'},
+  {id:57,name:'Sinop',nameEn:'Sinop',lat:42.02,lng:35.15,tale:'Karadeniz\'in en kuzey burnunda bir fener kulesi varmış. Fenercinin her gece anlattığı masal ışıkla birlikte denize yayılırmış.',taleEn:'A lighthouse on the northernmost cape of the Black Sea. The tale the keeper told each night spread to sea with the light.'},
+  {id:58,name:'Sivas',nameEn:'Sivas',lat:39.75,lng:37.02,tale:'Divriği\'nin taş işlemelerinde gizli bir şifre varmış. Bir çocuk şifreyi çözmüş; kapının arkasında kitap dolabı varmış, içinde tüm dünya masalları.',taleEn:'A secret code in the stonework of Divriği. A child solved it; behind the door was a bookcase with all the fairy tales of the world.'},
+  {id:59,name:'Tekirdağ',nameEn:'Tekirdağ',lat:40.97,lng:27.51,tale:'Trakya bağlarında bir şarapçı her yıl üzümünden "Anı Şarabı" yaparmış. Kim içse o yılki en mutlu anısına geri dönermiş.',taleEn:'A wine-maker in the vineyards of Thrace made "Memory Wine" each year. Whoever drank it returned to their happiest memory of that year.'},
+  {id:60,name:'Tokat',nameEn:'Tokat',lat:40.31,lng:36.56,tale:'Niksar kalesi\'nin altındaki mağarada bir saat ustası varmış. Zamanı tamir edebilirmiş ama bunu yalnızca bir kez yapmış.',taleEn:'A clockmaker in a cave beneath Niksar Castle could repair time but only did so once.'},
+  {id:61,name:'Trabzon',nameEn:'Trabzon',lat:41.00,lng:39.72,tale:'Sumela Manastırı\'nın sarp kayalarında bir keşiş her yıl bir kelimeyi taşa kazırmış. Yüzyıllar sonra taşın tüm yüzü dolmuş; okuyan biri dünyanın en güzel duasını okumuş ve güneş vurmuş.',taleEn:'A monk on the steep rocks of Sumela carved one word into stone every year. Centuries later the entire face was full; someone who read it all recited the most beautiful prayer in the world and the sun broke through.'},
+  {id:62,name:'Tunceli',nameEn:'Tunceli',lat:39.11,lng:39.55,tale:'Munzur Vadisi\'nin derelerinde bir peri kızı her gün derenin sesini dinler, suyun anlattığı masalları köye taşırdı.',taleEn:'A fairy girl in the Munzur Valley streams listened to the water every day and carried its tales to the village.'},
+  {id:63,name:'Şanlıurfa',nameEn:'Şanlıurfa',lat:37.16,lng:38.79,tale:'Balıklıgöl\'ün kıyısında bir balık her gün gölün etrafını yüzer, dua edenlerin yüreklerine huzur bırakırmış. Biri "Bana hikaye anlat" diye yalvarmış; balık gülümseyerek suya dalmış ve göl ışıl ışıl olmuş.',taleEn:'A fish by Balıklıgöl swam around every day leaving peace in the hearts of those who prayed. Someone begged "Tell me a story"; the fish smiled, dived, and the pool shimmered with light.'},
+  {id:64,name:'Şırnak',nameEn:'Şırnak',lat:37.52,lng:42.46,tale:'Cudi Dağı\'nın üstünde bulutların arasında bir koyun sürüsü gezermiş. Çobanın sesi bulutlara karışırmış; bulutlar türküye dönüşürmüş.',taleEn:'A flock of sheep grazed above Mount Cudi among the clouds. The shepherd\'s voice mingled with the clouds; the clouds turned into a ballad.'},
+  {id:65,name:'Uşak',nameEn:'Uşak',lat:38.67,lng:29.40,tale:'Halı dokuma atölyelerinde bir usta varmış. Bir hata yaptığında sökmez, o hatayı bir çiçeğe dönüştürürmüş. "Mükemmellik hatasızlık değil, hatayı sevmektir" dermiş.',taleEn:'A master in a carpet-weaving workshop turned every mistake into a flower instead of unpicking it. "Perfection is not being without mistakes," he said, "it is loving your mistakes."'},
+  {id:66,name:'Van',nameEn:'Van',lat:38.49,lng:43.38,tale:'Van Gölü\'nde yüzen bir Van kedisi her sabah göle girip bir inciyi dışarı getirirmiş. İnci aslında bir dileğin kristalleşmiş haliymiş.',taleEn:'A Van cat swimming in Lake Van entered the lake every morning and brought out a pearl. The pearl was actually a crystallised wish.'},
+  {id:67,name:'Yozgat',nameEn:'Yozgat',lat:39.82,lng:34.81,tale:'Bozkırın tam ortasında bir çınar varmış, her gece yaprakları döküp sabah yeniden çıkarırmış. Ağacın altında uyuyanlar anılarını yapraklarla bırakırlarmış; sabah uyanınca ferahlarmış.',taleEn:'A plane tree in the heart of the steppe shed its leaves every night and regrew them by morning. Those who slept beneath it left their memories with the leaves; when they woke they felt lighter.'},
+  {id:68,name:'Zonguldak',nameEn:'Zonguldak',lat:41.45,lng:31.80,tale:'Maden ocağının derinliklerinde bir taş varmış, çok çok eski bir zamanın ışığını saklıyormuş. Madenciler o taşa dokunduğunda yer kabuğunun oluşma masalı oynanırmış.',taleEn:'A stone deep in a coal mine stored light from a very ancient time. When miners touched it the tale of how the earth\'s crust formed played before their eyes.'},
+  {id:69,name:'Aksaray',nameEn:'Aksaray',lat:38.37,lng:34.04,tale:'İhlara Vadisi\'nin uçurumlarında kayılmış fresklerde bir masal gizliymiş. Vadiden geçenler fresklerden birer sahne okur, zihinlerinde filmi tamamlarlarmış.',taleEn:'A tale was hidden in frescoes carved into the cliffs of İhlara Valley. Those who passed through read a scene and completed the film in their minds.'},
+  {id:70,name:'Bayburt',nameEn:'Bayburt',lat:40.26,lng:40.23,tale:'Bu dağ kasabasında bir mektup gönderici varmış. Her mektuba bir dilekte bulunurmuş. Dileği postanın üstünde gezinip alıcıya ulaşırmış.',taleEn:'A letter sender in this mountain town made a wish for every letter. The wish travelled on top of the post and reached the recipient.'},
+  {id:71,name:'Karaman',nameEn:'Karaman',lat:37.18,lng:33.22,tale:'Karamanoğulları diyarında Türkçeye ilk resmi statünün verildiği o gün, kelimeler uçuşmaya başlamış. Her Türkçe sözcük bir güvercine dönüşmüş; güvercin dili bulduğu herkese öğretmiş.',taleEn:'On the day Turkish was given its first official status in the Karamanogullari land, words began to fly. Every Turkish word turned into a dove; the dove taught the language to everyone it found.'},
+  {id:72,name:'Kırıkkale',nameEn:'Kırıkkale',lat:39.84,lng:33.51,tale:'Kızılırmak kıyısında bir demirci çocuk varmış. Her çekiç vuruşunda bir nota müziğe dönüşürmüş. Notlar nehre düşer, denize ulaştığında dev bir senfoniye dönüşürmüş.',taleEn:'A blacksmith child by the Kızılırmak. Every hammer blow turned into a musical note. The notes fell into the river and became a great symphony by the time they reached the sea.'},
+  {id:73,name:'Batman',nameEn:'Batman',lat:37.88,lng:41.13,tale:'Dicle\'nin kıyısında geceleri bir kahraman belirivermiş. Çocukların aklındaki tüm soruları not edermiş. Sabah olunca sınıf tahtasında cevaplar yazıyormuş.',taleEn:'A hero appeared by the Tigris at night. It noted every question in children\'s minds. By morning the answers were written on the classroom blackboard.'},
+  {id:74,name:'Ardahan',nameEn:'Ardahan',lat:41.11,lng:42.70,tale:'Çıldır Gölü\'nde kış gelince göl donmuş; ama altında balıklar hâlâ yüzüyormuş. Dondaki çatlaklar ses yoluymuş; balıkların masallarını dinlemek mümkünmüş.',taleEn:'When winter came Lake Çıldır froze; but fish still swam beneath. The cracks in the ice were sound paths — it was possible to hear the fish\'s tales.'},
+  {id:75,name:'Iğdır',nameEn:'Iğdır',lat:39.92,lng:44.05,tale:'Aras Vadisi\'nin sınırında iki ülkenin bir tek çayı paylaştığı bir köy varmış. Bir gün iki taraf aynı masalı anlattıklarını fark etmiş; aslında ikisi de aynı büyükannenin torunlarıymış.',taleEn:'A village on the Aras Valley border shared a single river between two countries. One day they realised they were telling the same tale; they were both descended from the same grandmother.'},
+  {id:76,name:'Yalova',nameEn:'Yalova',lat:40.65,lng:29.27,tale:'Termal sularının derinliklerinde bir ninni varmış; suyun sıcaklığına karışmış, oraya girenlerin ruhuna işliyormuş. Bir çocuk "Korkudan değil, güzellikten ağladım" demiş.',taleEn:'A lullaby lived deep in the thermal waters mixed with the warmth, working into the souls of those who entered. A child said "I did not cry from fear, but from beauty."'},
+  {id:77,name:'Karabük',nameEn:'Karabük',lat:41.20,lng:32.63,tale:'Safranbolu\'nun tarihi evlerinin bodrum katlarında safranın altın sarısı kokusu yaşarmış. Kim o kokuyu alırsa o gece altın rengi rüyalar görmüş.',taleEn:'The golden-yellow scent of saffron lived in the cellars of Safranbolu\'s historic houses. Whoever caught that scent dreamed golden dreams that night.'},
+  {id:78,name:'Kilis',nameEn:'Kilis',lat:36.71,lng:37.12,tale:'Zeytin ve üzümün buluştuğu bu küçük ilde bir bahçıvan varmış. Her meyveye isim takarmış. Birisi "Peki sen nesin?" diye sormuş. Bahçıvan gülmüş: "Ben bu bahçenin masalıyım."',taleEn:'A gardener in this small city where olive and grape meet named each fruit. Someone asked "And what are you?" The gardener smiled: "I am this garden\'s fairy tale."'},
+  {id:79,name:'Osmaniye',nameEn:'Osmaniye',lat:37.21,lng:36.17,tale:'Torosların eteklerindeki bu şehirde bir kaya varmış. Yağmur yağdığında kayadan bir ses çıkarmış: Efsaneye göre denize giden taşın hikayesiymiş.',taleEn:'A rock in this city at the foot of the Taurus gave out a sound when it rained. According to legend it was the story of a stone that broke away and went to the sea.'},
+  {id:80,name:'Düzce',nameEn:'Düzce',lat:40.84,lng:31.16,tale:'Akçakoca kıyısında bir balıkçı köyünde masalın son cümlesi söylendiğinde balıklar ağa doluşurmuş. Bu sır nesiller boyunca aktarılmıştır.',taleEn:'In a fishing village on the Akçakoca shore, when the last sentence of the tale was spoken the fish filled the net. This secret has been passed down through generations.'},
+  {id:81,name:'Bartın',nameEn:'Bartın',lat:41.63,lng:32.34,tale:'Bartın Çayı kıyısında ahşap tekne ustaları varmış. Her tekneye gizli bir şiir işlerlermiş. Denize açılan tekneler o şiiri dalgalara okurmuş; dalgalar da şiiri sahile geri taşırmış.',taleEn:'Wooden boat masters by the Bartın River worked a secret poem into every boat. Boats that went to sea read that poem to the waves; the waves carried it back to shore.'},
+  {id:82,name:'Kıbrıs (Lefkoşa)',nameEn:'Cyprus (Nicosia)',lat:35.17,lng:33.36,tale:'Akdeniz\'in ortasında bir adada iki toplum yıllarca ayrı yaşamış. Bir gün bir masal anlatıcısı hattın tam ortasına geçmiş; her iki dilde de aynı masalı anlatmış. Masallar sınır tanımaz.',taleEn:'Two communities on a Mediterranean island lived apart for many years. One day a storyteller stepped to the exact middle of the dividing line and told the same tale in both languages. Tales know no borders.'}
+];
+
+/* ── STATE ── */
+var lang='tr',currentUser=null,currentProvince=null;
+var markers={},mapInited=false,leafletMap=null,toastTimer=null;
+var gameStats={score:0,correct:0,total:0},gameQuizAnswered=false;
+var currentValFilter='all',pendingProvince=null;
+
+function t(k){return T[lang][k]||T.tr[k]||k;}
+
+/* ── HERO ANIMATIONS ── */
+function buildHero(){
+  // Music notes
+  var notes=['♩','♪','♫','♬','𝄞','𝄢','🎵','🎶'];
+  var colors=['gold','gold','gold','gray','gray'];
+  var bg=document.getElementById('hero-bg');
+  for(var i=0;i<22;i++){
+    var n=document.createElement('div');
+    n.className='note '+colors[Math.floor(Math.random()*colors.length)];
+    n.textContent=notes[Math.floor(Math.random()*notes.length)];
+    n.style.left=Math.random()*100+'%';
+    n.style.animationDuration=(8+Math.random()*14)+'s';
+    n.style.animationDelay=(-Math.random()*20)+'s';
+    n.style.fontSize=(2+Math.random()*4)+'rem';
+    bg.appendChild(n);
+  }
+  // Word cloud (Turkey cities)
+  var words=['ADANA','ANKARA','İSTANBUL','İZMİR','BURSA','ANTALYA','KONYA','GAZİANTEP','MERSİN','TRABZON','SAMSUN','DİYARBAKIR','ERZURUM','MALATYA','ESKİŞEHİR','KAYSERI','AYDIN','EDİRNE','ŞANLIURFA','VAN','HATAY','MUĞLA','KASTAMONU','RIZE','SIVAS','TOKAT','BOLU','ÇORUM','ORDU','SİNOP','KARAMAN','KARABÜK','ARTVİN'];
+  var wColors=['#f5a623','#e8941a','#ff6b00','#ffd700','#ffaa00','#ffffff','#aaaaaa','#888888'];
+  var wc=document.getElementById('wc-bg');
+  words.forEach(function(w){
+    var el=document.createElement('span');
+    el.className='wc-w';
+    el.textContent=w;
+    el.style.left=(Math.random()*90)+'%';
+    el.style.top=(Math.random()*90)+'%';
+    el.style.fontSize=(0.7+Math.random()*2.2)+'rem';
+    el.style.color=wColors[Math.floor(Math.random()*wColors.length)];
+    el.style.transform='rotate('+(Math.random()*60-30)+'deg)';
+    wc.appendChild(el);
+  });
+}
+
+/* ── LANG ── */
+function applyLang(){
+  var m={
+    'logo-main':'logoMain','logo-sub':'logoSub',
+    'guest-hint':'guestHint',
+    'btn-lang-top':'btnLang','btn-logout-top':'btnLogout','btn-download':'btnDownload',
+    'nav-home':'navHome','nav-map':'navMap','nav-game':'navGame',
+    'nav-badges':'navBadges','nav-lb':'navLb','nav-contact':'navContact',
+    'hero-title':'heroTitle','hero-sub':'heroSub',
+    'btn-goto-map':'btnGotoMap','btn-goto-game':'btnGotoGame','btn-goto-contact':'btnGotoContact',
+    'progress-label':'progressLbl','tale-sub-lbl':'taleSubtitle',
+    'panel-auth-title':'panelAuthTitle','panel-auth-sub':'panelAuthSub',
+    'mini-tab-reg':'miniTabReg','mini-tab-login':'miniTabLogin',
+    'mini-lbl-name':'miniLblName','mini-btn-reg':'miniBtnReg',
+    'mini-lbl-cid':'miniLblCid','mini-lbl-note':'miniNote',
+    'mini-btn-continue':'miniBtnContinue','mini-lbl-code':'miniLblCode',
+    'mini-btn-login':'miniBtnLogin',
+    'btn-listen':'btnListen','btn-stop':'btnStop','btn-game-from-tale':'btnGameFromTale',
+    'game-title':'gameTitle','game-desc':'gameDesc',
+    'gs-score-lbl':'scoreLbl','gs-correct-lbl':'correctLbl','gs-total-lbl':'totalLbl',
+    'vtab-all':'vtabAll','btn-random-val':'btnRandom','btn-reset-game':'btnReset',
+    'vq-next':'btnNext',
+    'badges-title':'badgesTitle','badges-desc':'badgesDesc',
+    'lb-title':'lbTitle','lb-desc':'lbDesc',
+    'contact-title':'contactTitle','contact-sub':'contactSub','contact-submit':'contactSubmit'
+  };
+  Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=t(m[id]);});
+  var phs={'mini-reg-name':'miniNamePh','mini-login-code':'miniCodePh',
+    'contact-name-input':'contactNamePh','contact-email-input':'contactEmailPh','contact-msg-input':'contactMsgPh'};
+  Object.keys(phs).forEach(function(id){var el=document.getElementById(id);if(el)el.placeholder=t(phs[id]);});
+  renderBadges();renderLeaderboard();
+}
+function switchLang(l){lang=l;applyLang();}
+
+/* ── NAV ── */
+function goTo(page){
+  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.toggle('active',b.dataset.page===page);});
+  // hide/show hero and app section
+  document.getElementById('hero').style.display=page==='hero'?'flex':'none';
+  document.querySelectorAll('#app-section .page').forEach(function(p){p.classList.toggle('active',p.id==='page-'+page);});
+  document.getElementById('app-section').style.display=page==='hero'?'none':'block';
+  if(page==='map'&&leafletMap)setTimeout(function(){leafletMap.invalidateSize();},120);
+  if(page==='badges')renderBadges();
+  if(page==='leaderboard')renderLeaderboard();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── AUTH ── */
+function switchMiniTab(tab){
+  document.getElementById('mini-tab-reg').classList.toggle('active',tab==='reg');
+  document.getElementById('mini-tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('mini-form-reg').classList.toggle('active',tab==='reg');
+  document.getElementById('mini-form-login').classList.toggle('active',tab==='login');
+  setPanelMsg('','');
+}
+function setPanelMsg(m,c){var el=document.getElementById('panel-auth-msg');el.textContent=m;el.className=c;}
+function doMiniRegister(){
+  var name=document.getElementById('mini-reg-name').value.trim();
+  if(!name||name.length<2){setPanelMsg(t('msgShort'),'error');return;}
+  var code=String(Math.floor(1000+Math.random()*9000));
+  var u={name:name,code:code,score:0,discovered:[],quizCorrect:0,earnedBadges:[],correctByVal:{}};
+  localStorage.setItem('masal_user_'+code,JSON.stringify(u));
+  document.getElementById('mini-id-display').textContent=code;
+  document.getElementById('mini-id-box').style.display='block';
+  setPanelMsg(t('msgRegOk'),'success');
+  currentUser=u;
+}
+function doMiniContinue(){if(currentUser)finishLogin();}
+function doMiniLogin(){
+  var code=document.getElementById('mini-login-code').value.trim();
+  if(!/^\d{4}$/.test(code)){setPanelMsg(t('msgBadCode'),'error');return;}
+  var raw=localStorage.getItem('masal_user_'+code);
+  if(!raw){setPanelMsg(t('msgNotFound'),'error');return;}
+  currentUser=JSON.parse(raw);
+  if(!currentUser.quizCorrect)currentUser.quizCorrect=0;
+  if(!currentUser.earnedBadges)currentUser.earnedBadges=[];
+  if(!currentUser.correctByVal)currentUser.correctByVal={};
+  finishLogin();
+}
+function finishLogin(){
+  document.getElementById('user-bar').style.display='flex';
+  document.getElementById('guest-bar').style.display='none';
+  document.getElementById('user-name-pill').textContent=currentUser.name;
+  document.getElementById('user-id-pill').textContent=currentUser.code;
+  document.getElementById('user-score-pill').textContent=currentUser.score;
+  updateProgress();refreshMarkers();
+  renderBadges();renderLeaderboard();
+  if(pendingProvince){showTale(pendingProvince);pendingProvince=null;}
+}
+function doLogout(){
+  saveUser();currentUser=null;
+  document.getElementById('user-bar').style.display='none';
+  document.getElementById('guest-bar').style.display='flex';
+  document.getElementById('tale-panel').classList.remove('open');
+  stopTale();
+  Object.keys(markers).forEach(function(id){markers[id].el.classList.remove('discovered');});
+  renderBadges();renderLeaderboard();updateProgress();
+}
+function saveUser(){if(currentUser)localStorage.setItem('masal_user_'+currentUser.code,JSON.stringify(currentUser));}
+function updateProgress(){
+  var n=currentUser?currentUser.discovered.length:0;
+  document.getElementById('progress-fill').style.width=(n/82*100)+'%';
+  document.getElementById('progress-count').textContent=n+' / 82';
+}
+function refreshMarkers(){
+  if(!currentUser)return;
+  Object.keys(markers).forEach(function(id){
+    markers[id].el.classList.toggle('discovered',currentUser.discovered.indexOf(parseInt(id))>-1);
+  });
+}
+
+/* ── MAP ── */
+function initMap(){
+  if(mapInited)return;
+  if(typeof L==='undefined'){setTimeout(initMap,100);return;}
+  mapInited=true;
+  leafletMap=L.map('map',{center:[39.0,35.5],zoom:6,zoomControl:true,attributionControl:true,minZoom:5,maxZoom:12});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; CARTO &copy; OSM',subdomains:'abcd',maxZoom:20}).addTo(leafletMap);
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();}).then(function(d){
+      var tr=d.features.find(function(f){return f.properties&&(f.properties.ISO_A2==='TR'||f.properties.ADMIN==='Turkey');});
+      if(tr)L.geoJSON(tr,{style:{color:'rgba(245,166,35,0.45)',weight:1.5,fillColor:'rgba(245,166,35,0.03)',fillOpacity:1}}).addTo(leafletMap);
+    }).catch(function(){});
+  var s=document.createElement('style');
+  s.textContent='.leaflet-tooltip.ft{background:rgba(10,10,20,.95);border:1px solid rgba(245,166,35,.5);color:#f5a623;font-family:"Oswald",sans-serif;font-size:.65rem;border-radius:5px;padding:3px 9px;letter-spacing:.06em;text-transform:uppercase;}.leaflet-tooltip.ft::before{border-top-color:rgba(245,166,35,.5);}';
+  document.head.appendChild(s);
+  PROVINCES.forEach(function(p){
+    var disc=currentUser&&currentUser.discovered.indexOf(p.id)>-1;
+    var el=document.createElement('div');el.className='fairy-marker'+(disc?' discovered':'');
+    var m=L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',html:el,iconSize:[16,16],iconAnchor:[8,8]})}).addTo(leafletMap);
+    m.bindTooltip(lang==='en'&&p.nameEn?p.nameEn:p.name,{permanent:false,direction:'top',className:'ft',offset:[0,-9]});
+    m.on('click',(function(prov){return function(){onMarkerClick(prov);};})(p));
+    markers[p.id]={marker:m,el:el};
+  });
+}
+function onMarkerClick(p){
+  document.getElementById('tale-city').textContent=(lang==='en'&&p.nameEn?p.nameEn:p.name).toUpperCase();
+  document.getElementById('tale-sub-lbl').textContent=t('taleSubtitle');
+  document.getElementById('tale-panel').classList.add('open');
+  if(!currentUser){
+    pendingProvince=p;
+    document.getElementById('panel-auth').style.display='block';
+    document.getElementById('panel-tale').style.display='none';
+    document.getElementById('mini-id-box').style.display='none';
+    document.getElementById('mini-reg-name').value='';
+    document.getElementById('mini-login-code').value='';
+    setPanelMsg('','');switchMiniTab('reg');
+  } else {showTale(p);}
+}
+function showTale(p){
+  currentProvince=p;
+  document.getElementById('panel-auth').style.display='none';
+  document.getElementById('panel-tale').style.display='flex';
+  var text=lang==='en'&&p.taleEn?p.taleEn:p.tale;
+  var el=document.getElementById('tale-text');el.textContent='';
+  var i=0;(function type(){if(i<text.length){el.textContent+=text[i++];setTimeout(type,15);}})();
+  if(currentUser.discovered.indexOf(p.id)===-1){
+    currentUser.discovered.push(p.id);
+    if(markers[p.id])markers[p.id].el.classList.add('discovered');
+    updateProgress();saveUser();
+    showToast('🗺️ '+(lang==='en'&&p.nameEn?p.nameEn:p.name)+t('discovered'));
+    checkBadges();
+    if(currentUser.discovered.length===82)setTimeout(showCompletion,800);
+  }
+}
+function closeTalePanel(){stopTale();document.getElementById('tale-panel').classList.remove('open');}
+
+/* ── SPEECH ── */
+function listenTale(){
+  if(!currentProvince)return;stopTale();
+  if(!window.speechSynthesis){showToast(t('speechErr'));return;}
+  var text=lang==='en'&&currentProvince.taleEn?currentProvince.taleEn:currentProvince.tale;
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang=lang==='en'?'en-US':'tr-TR';u.rate=0.88;u.pitch=1.05;
+  window.speechSynthesis.speak(u);
+}
+function stopTale(){if(window.speechSynthesis)window.speechSynthesis.cancel();}
+
+/* ── GAME: VALUE QUESTIONS ── */
+var playedQIds=[];
+
+function getFilteredQs(){
+  if(currentValFilter==='all')return VALUE_QS;
+  return VALUE_QS.filter(function(q){return q.value===currentValFilter;});
+}
+function loadValueQ(q){
+  gameQuizAnswered=false;
+  var vName=lang==='en'?q.valueNameEn:q.valueName;
+  var pName=lang==='en'?q.provinceEn:q.province;
+  var question=lang==='en'?q.qEn:q.q;
+  var opts=lang==='en'?q.optsEn:q.opts;
+  var explain=lang==='en'?q.explainEn:q.explain;
+  document.getElementById('vq-value-badge').textContent=vName.toUpperCase();
+  document.getElementById('vq-province').textContent='📍 '+pName;
+  document.getElementById('vq-question').textContent=question;
+  document.getElementById('vq-feedback').textContent='';document.getElementById('vq-feedback').className='';
+  document.getElementById('vq-value-explain').style.display='none';document.getElementById('vq-value-explain').textContent='';
+  document.getElementById('vq-next').style.display='none';
+  var optDiv=document.getElementById('vq-options');optDiv.innerHTML='';
+  opts.forEach(function(opt,i){
+    var btn=document.createElement('button');btn.className='vq-opt';btn.textContent=opt;
+    btn.addEventListener('click',(function(idx,b){return function(){answerValueQ(idx,q.ans,b,explain,q);};})(i,btn));
+    optDiv.appendChild(btn);
+  });
+  if(playedQIds.indexOf(q.province+q.value)===-1)playedQIds.push(q.province+q.value);
+}
+function answerValueQ(chosen,correct,btnEl,explain,q){
+  if(gameQuizAnswered)return;gameQuizAnswered=true;gameStats.total++;
+  document.querySelectorAll('.vq-opt').forEach(function(b){b.classList.add('disabled');});
+  if(chosen===correct){
+    btnEl.classList.add('correct');
+    document.getElementById('vq-feedback').textContent=t('correct');document.getElementById('vq-feedback').className='good';
+    gameStats.score+=100;gameStats.correct++;
+    if(currentUser){
+      currentUser.score+=100;
+      currentUser.quizCorrect=(currentUser.quizCorrect||0)+1;
+      if(!currentUser.correctByVal)currentUser.correctByVal={};
+      currentUser.correctByVal[q.value]=(currentUser.correctByVal[q.value]||0)+1;
+      document.getElementById('user-score-pill').textContent=currentUser.score;
+      saveUser();
+    }
+    showToast('⭐ +100 '+t('scoreLbl'));launchConfetti();checkBadges();
+  } else {
+    btnEl.classList.add('wrong');
+    document.querySelectorAll('.vq-opt')[correct].classList.add('correct');
+    var opts=lang==='en'?q.optsEn:q.opts;
+    document.getElementById('vq-feedback').textContent=t('wrong')+opts[correct];
+    document.getElementById('vq-feedback').className='bad';
+  }
+  // Show value explanation
+  var expEl=document.getElementById('vq-value-explain');
+  expEl.textContent='💡 '+explain;expEl.style.display='block';
+  document.getElementById('gs-score').textContent=gameStats.score;
+  document.getElementById('gs-correct').textContent=gameStats.correct;
+  document.getElementById('gs-total').textContent=gameStats.total;
+  document.getElementById('vq-next').style.display='block';
+}
+function randomValueQ(){
+  if(!currentUser){showToast(lang==='tr'?'Önce haritadan bir ile tıkla!':'Click a city on the map first!');return;}
+  var pool=getFilteredQs();
+  var unplayed=pool.filter(function(q){return playedQIds.indexOf(q.province+q.value)===-1;});
+  var src=unplayed.length>0?unplayed:pool;
+  loadValueQ(src[Math.floor(Math.random()*src.length)]);
+}
+function resetGame(){
+  gameStats={score:0,correct:0,total:0};playedQIds=[];
+  document.getElementById('vq-options').innerHTML='';
+  document.getElementById('vq-question').textContent=lang==='tr'?'Başlamak için bir değer seç veya rastgele soru butonuna bas!':'Select a value or press random question to start!';
+  document.getElementById('vq-feedback').textContent='';
+  document.getElementById('vq-value-explain').style.display='none';
+  document.getElementById('vq-next').style.display='none';
+  document.getElementById('vq-value-badge').textContent='—';
+  document.getElementById('vq-province').textContent='';
+  document.getElementById('gs-score').textContent='0';
+  document.getElementById('gs-correct').textContent='0';
+  document.getElementById('gs-total').textContent='0';
+}
+function goToGameFromTale(){
+  closeTalePanel();goTo('game');
+  if(currentProvince){
+    var related=VALUE_QS.filter(function(q){return q.province===currentProvince.name||q.provinceEn===currentProvince.nameEn;});
+    if(related.length>0)loadValueQ(related[Math.floor(Math.random()*related.length)]);
+    else randomValueQ();
+  }
+}
+
+/* ── BADGES ── */
+function checkBadges(){
+  if(!currentUser)return;
+  var newOnes=[];
+  BADGES.forEach(function(b){
+    if(currentUser.earnedBadges.indexOf(b.id)===-1&&b.check(currentUser)){
+      currentUser.earnedBadges.push(b.id);newOnes.push(b);
+    }
+  });
+  saveUser();
+  if(newOnes.length>0)(function show(i){
+    if(i>=newOnes.length)return;
+    setTimeout(function(){showBadgeModal(newOnes[i]);setTimeout(function(){show(i+1);},2200);},400);
+  })(0);
+}
+function showBadgeModal(b){
+  document.getElementById('badge-modal-icon').textContent=b.icon;
+  document.getElementById('badge-modal-title').textContent=t('badgeNew');
+  document.getElementById('badge-modal-name').textContent=lang==='en'?b.nameEn:b.nameTr;
+  document.getElementById('badge-modal-desc').textContent=lang==='en'?b.descEn:b.descTr;
+  document.getElementById('badge-modal').classList.add('open');
+  launchConfetti();
+}
+function renderBadges(){
+  var grid=document.getElementById('badges-grid');if(!grid)return;
+  grid.innerHTML='';
+  BADGES.forEach(function(b){
+    var earned=currentUser&&currentUser.earnedBadges.indexOf(b.id)>-1;
+    var card=document.createElement('div');card.className='badge-card'+(earned?' earned':'');
+    card.innerHTML='<span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+(lang==='en'?b.nameEn:b.nameTr)+'</div><div class="badge-desc">'+(lang==='en'?b.descEn:b.descTr)+'</div>';
+    grid.appendChild(card);
+  });
+}
+
+/* ── LEADERBOARD ── */
+function renderLeaderboard(){
+  var list=document.getElementById('lb-list');if(!list)return;
+  list.innerHTML='';
+  var all=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf('masal_user_')===0){try{var u=JSON.parse(localStorage.getItem(k));if(u&&u.name)all.push(u);}catch(e){}}
+  }
+  all.sort(function(a,b){return b.score-a.score;});
+  if(all.length===0){var em=document.createElement('div');em.style.cssText='text-align:center;color:#888;padding:30px;font-style:italic;';em.textContent=t('lbEmpty');list.appendChild(em);return;}
+  all.slice(0,10).forEach(function(u,i){
+    var isMe=currentUser&&u.code===currentUser.code;
+    var row=document.createElement('div');row.className='lb-row'+(isMe?' me':'');
+    var rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+    row.innerHTML='<div class="lb-rank '+rc+'">'+medal+'</div><div class="lb-name'+(isMe?' me':'')+'">'+u.name+(isMe?' ★':'')+'</div><div><div class="lb-score">'+u.score+'</div><div class="lb-disc">'+(u.discovered?u.discovered.length:0)+'/82 il</div></div>';
+    list.appendChild(row);
+  });
+}
+
+/* ── CONFETTI ── */
+function launchConfetti(){
+  var c=document.getElementById('confetti-canvas');
+  c.style.display='block';c.width=window.innerWidth;c.height=window.innerHeight;
+  var ctx=c.getContext('2d');
+  var cols=['#f5a623','#ffd700','#ff6b00','#4ade80','#38bdf8','#f87171'];
+  var pts=[];
+  for(var i=0;i<110;i++)pts.push({x:Math.random()*c.width,y:-20,w:8+Math.random()*10,h:4+Math.random()*6,color:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*4,vy:2+Math.random()*3,rot:Math.random()*360,vr:(Math.random()-.5)*6});
+  var frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);var alive=false;
+    pts.forEach(function(p){if(p.y<c.height+20){alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.05;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.globalAlpha=Math.max(0,1-frame/90);ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();}});
+    frame++;
+    if(alive&&frame<100)requestAnimationFrame(draw);
+    else{ctx.clearRect(0,0,c.width,c.height);c.style.display='none';}
+  })();
+}
+
+/* ── COMPLETION ── */
+function showCompletion(){
+  document.getElementById('completion-title').textContent=t('completionTitle');
+  document.getElementById('completion-text').textContent=t('completionText');
+  document.getElementById('btn-close-completion').textContent=t('completionBtn');
+  document.getElementById('completion-modal').classList.add('open');
+  launchConfetti();setTimeout(launchConfetti,600);setTimeout(launchConfetti,1200);
+}
+
+/* ── TOAST ── */
+function showToast(msg){
+  var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},2800);
+}
+
+/* ── EVENTS ── */
+document.addEventListener('DOMContentLoaded',function(){
+  buildHero();
+  applyLang();
+  updateProgress();
+
+  // Lang
+  document.getElementById('btn-lang-top').addEventListener('click',function(){switchLang(lang==='tr'?'en':'tr');});
+
+  // Logout
+  document.getElementById('btn-logout-top').addEventListener('click',doLogout);
+
+  // Nav
+  document.querySelectorAll('.nav-item').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var page=btn.dataset.page;
+      if(page==='map')initMap();
+      goTo(page);
+    });
+  });
+
+  // Hero buttons
+  document.getElementById('btn-goto-map').addEventListener('click',function(){initMap();goTo('map');});
+  document.getElementById('btn-goto-game').addEventListener('click',function(){goTo('game');});
+  document.getElementById('btn-goto-contact').addEventListener('click',function(){goTo('contact');});
+
+  // Auth panel
+  document.getElementById('mini-tab-reg').addEventListener('click',function(){switchMiniTab('reg');});
+  document.getElementById('mini-tab-login').addEventListener('click',function(){switchMiniTab('login');});
+  document.getElementById('mini-btn-reg').addEventListener('click',doMiniRegister);
+  document.getElementById('mini-btn-continue').addEventListener('click',doMiniContinue);
+  document.getElementById('mini-btn-login').addEventListener('click',doMiniLogin);
+  document.getElementById('mini-reg-name').addEventListener('keydown',function(e){if(e.key==='Enter')doMiniRegister();});
+  document.getElementById('mini-login-code').addEventListener('keydown',function(e){if(e.key==='Enter')doMiniLogin();});
+
+  // Tale panel
+  document.getElementById('tale-handle').addEventListener('click',closeTalePanel);
+  document.getElementById('btn-close-panel').addEventListener('click',closeTalePanel);
+  document.getElementById('btn-listen').addEventListener('click',listenTale);
+  document.getElementById('btn-stop').addEventListener('click',stopTale);
+  document.getElementById('btn-game-from-tale').addEventListener('click',goToGameFromTale);
+
+  // Game
+  document.querySelectorAll('.vtab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      currentValFilter=btn.dataset.val;
+      document.querySelectorAll('.vtab').forEach(function(b){b.classList.toggle('active',b===btn);});
+    });
+  });
+  document.getElementById('btn-random-val').addEventListener('click',randomValueQ);
+  document.getElementById('btn-reset-game').addEventListener('click',resetGame);
+  document.getElementById('vq-next').addEventListener('click',randomValueQ);
+
+  // Modals
+  document.getElementById('btn-close-badge').addEventListener('click',function(){document.getElementById('badge-modal').classList.remove('open');});
+  document.getElementById('btn-close-completion').addEventListener('click',function(){document.getElementById('completion-modal').classList.remove('open');});
+  document.getElementById('badge-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+  document.getElementById('completion-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+  // Init hero visible, app section hidden
+  document.getElementById('app-section').style.display='none';
+});
+
+})();
+</script>
+</body>
+</html>
